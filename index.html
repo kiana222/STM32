@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="面向 CRTC 电控组新人的 STM32F103C8T6 三周速通课程：GPIO、PWM、FreeRTOS、PS2 手柄、麦轮和综合作品。">
+  <title>STM32 电控速通 · CRTC 训练路线</title>
+  <style>
+    :root{color-scheme:light;--bg:#f4f6f8;--paper:#fff;--ink:#172535;--sub:#506175;--line:#dbe2e8;--brand:#145b70;--brand2:#0e4050;--accent:#e7b536;--pale:#fff7df;--ok:#26715b;--bad:#ad4c40;--shadow:0 10px 30px rgba(20,43,58,.07)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Microsoft YaHei","PingFang SC",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}a{color:var(--brand)}a:hover{text-decoration:none}:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+    .top{background:#102d3d;color:#fff;border-bottom:4px solid var(--accent)}.top-inner{max-width:1220px;margin:auto;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:22px}.logo{font-size:1.18rem;font-weight:800;letter-spacing:.02em}.logo small{display:block;color:#b8d3dc;font-size:.72rem;font-weight:500;letter-spacing:.06em}.top-note{font-size:.83rem;color:#c5d5dd}.nav{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}.nav-inner{max-width:1220px;margin:auto;display:flex;gap:4px;padding:7px 18px;overflow:auto;scrollbar-width:thin}.nav button{border:0;background:transparent;color:var(--sub);white-space:nowrap;padding:9px 14px;border-radius:8px;font-weight:650}.nav button.active,.nav button:hover{background:#e7f1f3;color:var(--brand2)}
+    main{max-width:1220px;margin:0 auto;padding:28px 24px 72px}.view{display:none}.view.active{display:block}.eyebrow{font-size:.78rem;font-weight:800;letter-spacing:.11em;color:var(--brand);text-transform:uppercase}.hero{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(270px,.8fr);gap:22px;align-items:stretch}.card,.hero-main,.hero-side{background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.hero-main{padding:30px 32px;background:linear-gradient(130deg,#fff 56%,#e9f5f4)}.hero-side{padding:24px;background:#12394a;color:#eff9fb;border-color:#12394a}.hero h1{font-size:clamp(1.75rem,3.5vw,2.7rem);line-height:1.25;margin:8px 0 14px}.hero p{max-width:710px;color:var(--sub);margin:0}.hero-side p{color:#c5dce2}.hero-side strong{display:block;font-size:2.2rem;line-height:1.1;margin:8px 0}.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.pill,.tag{display:inline-block;border-radius:999px;padding:3px 10px;font-size:.78rem;font-weight:700;background:#e9f2f3;color:var(--brand2)}.pill.core,.tag.core{background:#fff0bf;color:#674d08}.hero-side .pill{background:#2d5666;color:#eaf8fb}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.btn{border:1px solid var(--brand);border-radius:9px;padding:8px 14px;color:#fff;background:var(--brand);font-weight:700}.btn:hover{background:var(--brand2)}.btn.secondary{background:#fff;color:var(--brand)}.btn.ghost{border-color:var(--line);background:#fff;color:var(--sub)}.btn:disabled{opacity:.5;cursor:not-allowed}.section-head{margin:32px 0 15px}.section-head h2{font-size:1.55rem;margin:0 0 2px}.section-head p{color:var(--sub);margin:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:16px}.card{padding:21px}.card h3{margin:0 0 8px;font-size:1.1rem}.card p{margin:4px 0;color:var(--sub)}.callout{background:var(--pale);border-left:4px solid var(--accent);padding:13px 16px;border-radius:0 8px 8px 0;margin:14px 0}.danger{background:#fff0eb;border-left-color:var(--bad)}.ok{color:var(--ok)}.muted{color:var(--sub)}.small{font-size:.88rem}.stat{font-size:1.8rem;font-weight:800;color:var(--brand2);line-height:1.2}.bar{height:9px;border-radius:99px;background:#e7ecee;overflow:hidden;margin:10px 0}.bar span{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}.week{margin:28px 0}.week h3{margin:0 0 11px}.days{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.day{background:#fff;border:1px solid var(--line);padding:16px;border-radius:12px}.day h4{font-size:1rem;margin:0 0 8px}.day p{margin:3px 0;color:var(--sub);font-size:.91rem}.day label{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:.88rem;font-weight:700}.day input,.checkline input{accent-color:var(--brand);width:17px;height:17px}.day.done{border-color:#87b6a6;background:#f4fbf8}
+    .lesson{margin:0 0 18px;overflow:hidden}.lesson-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.lesson h3{font-size:1.25rem}.lesson-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(270px,.8fr);gap:20px}.diagram{background:#f7fafb;border:1px solid #dde8ec;border-radius:12px;padding:12px;overflow:auto}.diagram svg{display:block;width:100%;min-width:250px;height:auto}.diagram text{font:12px system-ui,"Microsoft YaHei",sans-serif;fill:#254658}.lesson h4{margin:18px 0 6px}.lesson ul,.lesson ol{padding-left:20px;margin:6px 0}.lesson li{margin:5px 0}.why{border-left:3px solid var(--brand);padding-left:12px;margin:10px 0}.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.links a,.links span{font-size:.82rem;border:1px solid var(--line);border-radius:8px;padding:5px 9px;background:#fff;text-decoration:none}.links a:hover{border-color:var(--brand)}.sim{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.sim label{font-size:.84rem;font-weight:700}.sim input{width:100%;accent-color:var(--brand)}.sim-out{font-family:Consolas,monospace;background:#f5f8fa;border-radius:10px;padding:12px;margin-top:10px;white-space:pre-wrap}
+    .chapter{border-top:1px solid var(--line);padding:24px 0 10px;scroll-margin-top:82px}.chapter h4{font-size:1.13rem;margin:0 0 8px}.chapter h5{margin:16px 0 5px;font-size:.97rem;color:var(--brand2)}.chapter p{margin:6px 0}.chapter pre{white-space:pre;max-width:100%}.chapter .checkpoint{background:#edf7f3;border-left:4px solid var(--ok);padding:10px 13px;border-radius:0 8px 8px 0}.chapter .video-link{display:inline-block;margin:9px 0}.chapter ol{margin:6px 0 11px;padding-left:22px}.chapter li{margin:5px 0}.lesson-index{display:flex;flex-wrap:wrap;gap:7px;margin:17px 0}.lesson-index button{padding:4px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--brand);font-size:.84rem}.lesson-index button:hover{background:#e7f1f3}.lesson .diagram{margin:14px 0}.lesson .diagram svg{min-width:0}.diagram-tip{display:none}.theory-intro{background:linear-gradient(120deg,#fff,#eaf4f4)}.theory-flow{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:15px 0}.theory-flow span{background:#e7f1f3;border:1px solid #c9dfe3;padding:5px 9px;border-radius:8px;font-weight:700;font-size:.85rem}.theory-unit{margin:0 0 14px;scroll-margin-top:82px}.theory-unit h3{font-size:1.2rem;margin:0 0 10px}.theory-unit h4{margin:15px 0 4px;color:var(--brand2);font-size:1rem}.theory-unit p{margin:7px 0}.theory-unit .diagram{margin:13px 0}.theory-unit .checkpoint{background:#edf7f3;border-left:4px solid var(--ok);padding:10px 13px;border-radius:0 8px 8px 0;margin-top:15px}.term-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:8px}.term-grid div{padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:#fff}.term-grid b{display:block;color:var(--brand2)}.theory-practice-divider{margin:35px 0 17px;border-top:3px solid var(--brand);padding-top:16px}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.filter{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 13px;color:var(--sub)}.filter.active{background:var(--brand);color:#fff;border-color:var(--brand)}.task{margin:0 0 14px}.task summary{font-weight:750;font-size:1.05rem;cursor:pointer}.task .task-meta{margin:6px 0 14px}.task-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.task-grid>div{background:#f8fafb;border-radius:9px;padding:11px 13px}.task-grid h4{margin:0 0 3px;font-size:.87rem;color:var(--brand2)}.task-grid p,.task-grid ul{margin:0;font-size:.91rem}.task-grid ul{padding-left:18px}.wide{grid-column:1/-1}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:.91rem}th,td{text-align:left;border-bottom:1px solid var(--line);padding:7px 9px;vertical-align:top}th{color:var(--brand2);background:#edf5f6}pre{overflow:auto;margin:8px 0;background:#162a35;color:#e6f1f2;border-radius:10px;padding:16px;font:13px/1.5 Consolas,"Courier New",monospace;tab-size:2;white-space:pre}.code-caption{font-size:.8rem;color:var(--sub)}details{margin:10px 0}summary{cursor:pointer}.project-block{margin:15px 0}.project-block h3{margin:0 0 8px}.project-block p{margin:6px 0}.project-steps{counter-reset:step}.project-steps>li{margin:8px 0}
+    .exam-frame{max-width:880px}.question{font-size:1.14rem;font-weight:750;margin:13px 0}.choices{display:grid;gap:9px;margin:15px 0}.choice{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:#fff}.choice:has(input:checked){border-color:var(--brand);background:#f1f8f9}.choice input{margin-top:6px;accent-color:var(--brand)}textarea{width:100%;min-height:105px;border:1px solid var(--line);border-radius:9px;padding:10px;resize:vertical}.answer{margin-top:13px;padding:14px;border-radius:9px;background:#eaf5ee}.answer.wrong{background:#fff0eb}.exam-progress{font-size:.86rem;color:var(--sub)}.wrong-row{border-bottom:1px solid var(--line);padding:10px 0}.wrong-row:last-child{border:0}.resource-list{display:grid;gap:11px}.resource{padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:#fff}.resource b{display:block}.resource span{color:var(--sub);font-size:.85rem}.footer{text-align:center;color:#657489;font-size:.8rem;margin:38px 0 0}.print-only{display:none}
+    @media(max-width:760px){main{padding:18px 14px 50px}.top-inner{padding:14px}.top-note{display:none}.hero,.lesson-body,.task-grid{grid-template-columns:1fr}.hero-main{padding:22px}.hero-side{padding:19px}.sim{grid-template-columns:1fr}.card{padding:16px}.nav-inner{padding:6px 8px}.nav button{padding:8px 11px}.diagram svg{width:620px;min-width:620px}.diagram-tip{display:block;font-size:.78rem;color:var(--sub);margin:-9px 0 10px}}
+    @media print{.top,.nav,.btn,.filters,.footer,textarea,input{display:none!important}main{max-width:none;padding:0}.view{display:block!important;break-before:page}.card,.day{box-shadow:none;break-inside:avoid}.print-only{display:block}}
+  </style>
+</head>
+<body>
+  <header class="top"><div class="top-inner"><div class="logo">STM32 电控速通<small>CRTC 新人训练 · F103C8T6</small></div><div class="top-note">每天 3–4 小时 · 21 天路线 · 一台能展示的小车</div></div></header>
+  <nav class="nav" aria-label="主导航"><div class="nav-inner" id="nav"></div></nav>
+  <main>
+    <section class="view active" id="home"><div class="hero"><div class="hero-main"><div class="eyebrow">从会 C 到能讲清楚一台车</div><h1>先弄懂基础名词，<br>再做 PS2 麦轮小车。</h1><p>第 1–2 天先学理论，不接线、不配置软件。弄懂单片机、电路、电平、时钟和常用外设之后，再进入 CRTC 电控组的四块培训内容：GPIO/PWM；电机、舵机、FreeRTOS 与工程结构；SPI/PS2；麦轮解算。</p><div class="pills"><span class="pill core">理论先修</span><span class="pill">STM32F103C8T6</span><span class="pill">四块培训内容</span><span class="pill">完整小车作品</span></div></div><div class="hero-side"><div class="eyebrow" style="color:#b9dee7">今日起点</div><strong id="today-num">第 1 天</strong><p id="today-text">先理解单片机、供电和电平。</p><div class="bar"><span id="home-bar"></span></div><p id="home-progress">路线完成 0 / 21 天</p><button class="btn" data-go="lessons">从理论先修开始</button></div></div><div class="callout"><b>器材决策：</b>实战用物资表里的 F103C8T6、4 个 TT 马达、2 块 DRV8833、1 套麦轮、PS2 无线手柄。MG995/SG90 用于舵机练习。图中物资表不是具体接线手册；购买前核对实际模块引脚、电压和电源电流额定值。</div><div class="section-head"><h2>2–3 周速通路线图</h2><p>每天 3–4 小时。第 1–2 天只读理论、画图和口头复述；第 3 天才开始接线。此后每天约 40 分钟回顾原理、90–120 分钟动手、40–60 分钟排错与复述。若只有 14 天，先用 1 天完成理论先修，再压缩重复练习，保留综合作品联调时间。</p></div><div id="roadmap"></div></section>
+    <section class="view" id="lessons"><div class="section-head"><h2>教程 · 先理论，后实操</h2><p>如果 GPIO、PWM、寄存器、时钟、外设这些词还陌生，请从下面的“零基础理论先修”顺序读起；它不要求买到硬件或打开 CubeMX。理解后再继续四大培训板块的实操课。中文视频是辅助，本站讲解按 F103C8T6 重新组织。</p></div><div id="theory-list"></div><div class="theory-practice-divider"><h2>下一阶段：四大板块实操课</h2><p class="muted">先完成上面的理论先修，再从“空工程到第一盏灯”开始。</p></div><div id="lesson-list"></div></section>
+    <section class="view" id="exam"><div class="section-head"><h2>理论考试</h2><p>题库至少 50 题；每次随机 20 题，包含图文、选择、判断和简答。客观题自动判分，简答题按要点自评。</p></div><div class="card exam-frame" id="exam-box"></div></section>
+    <section class="view" id="tasks"><div class="section-head"><h2>实操任务</h2><p>15 个任务，覆盖培训四大板块；每题都包含接线、CubeMX、代码框架、现象、调试和评分标准。</p></div><div class="filters" id="task-filters"></div><div id="task-list"></div></section>
+    <section class="view" id="project"><div class="section-head"><h2>综合作品 · PS2 遥控麦克纳姆轮小车</h2><p>目标是稳定完成前进、后退、左移、右移和旋转，并能解释每个输入如何变成四轮命令。</p></div><div id="project-content"></div></section>
+    <section class="view" id="resources"><div class="section-head"><h2>资源链接</h2><p>中文视频使用已核对的 B 站直达链接；外设与驱动参数以原厂手册为准。英文手册只作查表依据，教程正文均为中文。</p></div><div class="resource-list" id="resource-list"></div></section>
+    <section class="view" id="progress"><div class="section-head"><h2>学习进度与错题</h2><p>仅保存在当前浏览器的 localStorage。换浏览器或清理站点数据会丢失。</p></div><div class="grid" id="progress-stats"></div><div class="section-head"><h2>待复习题</h2><p>考错的题和自评“待复习”的简答题会留在这里。</p></div><div class="card" id="wrong-list"></div></section>
+    <p class="footer">单文件离线可用 · 外部文档与中文视频链接需要联网 · 使用时以实际器件手册和比赛规则为准</p>
+  </main>
+  <script>
+  'use strict';
+  const views=[['home','首页'],['lessons','教程'],['exam','理论考试'],['tasks','实操任务'],['project','综合作品'],['resources','资源链接'],['progress','学习进度']];
+  const docs={rm:'https://www.st.com/resource/en/reference_manual/cd00171190-stm32f101-103-105-107-stm32f100-series-armbased-32bit-mcus-stmicroelectronics.pdf',ds:'https://www.st.com/resource/en/datasheet/stm32f103c8.pdf',ti:'https://www.ti.com/lit/ds/symlink/drv8833.pdf',fr:'https://www.freertos.org/Documentation/02-Kernel/02-Kernel-features/01-Tasks-and-co-routines/05-Implementing-a-task',delay:'https://www.freertos.org/a00127.html',cubemx:'https://www.st.com/en/development-tools/stm32cubemx.html',cubeide:'https://www.st.com/en/development-tools/stm32cubeide.html',cubeprog:'https://www.st.com/en/development-tools/stm32cubeprog.html',rmb:'https://github.com/RoboMaster/Development-Board-C-Examples',ps2:'https://github.com/simondlevy/PS2X_lib/blob/master/PS2X_lib.cpp',gm:'https://www.robomaster.com/en-US/products/components/general/gm6020/info',c620:'https://cdn-hz.robomaster.com/robomasters/public/document/RoboMaster%20C620%20Brushless%20DC%20Motor%20Speed%20Controller%20V1.01.pdf'};
+  const videos={series:'https://www.bilibili.com/video/BV1uU3qzvEAr/',intro:'https://www.bilibili.com/video/BV1V3QpYxE7x/',servo:'https://www.bilibili.com/video/BV1qCuMztET5/',spi:'https://www.bilibili.com/video/BV1m54y1o7SL/',rtos:'https://www.bilibili.com/video/BV1WtNZeBEw6/',wheel:'https://www.bilibili.com/video/BV1Ut411G7HL/',ps2:'https://www.bilibili.com/video/BV1Ch411879N/'};
+  const videoNames={[videos.series]:'电导不是韩导 · 不翻页速通手册',[videos.intro]:'电导不是韩导 · 单片机速成',[videos.servo]:'电导不是韩导 · 电机与舵机模块篇',[videos.spi]:'STM32 HAL SPI 中文教程',[videos.rtos]:'STM32 FreeRTOS 任务入门',[videos.wheel]:'麦克纳姆轮公式推演',[videos.ps2]:'STM32F103 游戏手柄实验（第62讲）'};
+  const roadmap=[
+    ['1','核心','纯理论：电路、电平、单片机与核心板','不接线；能解释电压、电流、地、3.3V 与引脚'],
+    ['2','核心','纯理论：程序运行、时钟、外设与常见控制概念','不打开 CubeMX；能画出代码到引脚的完整路径'],
+    ['3','核心','GPIO 输出与输入：LED、按键、上拉','第一次接线；按键切换 LED 并解释悬空与消抖'],
+    ['4','核心','定时器与 PWM：频率、占空比','示波概念图算 PSC/ARR/CCR；PWM 呼吸灯'],
+    ['5','核心','外部中断 EXTI 与 NVIC','按键中断置标志，主循环处理消抖'],
+    ['6','核心','USART 串口与状态打印','PA9 输出计数和按键状态；了解异步帧'],
+    ['7','核心','按键/手柄输入概览与周测','识别 PS2 的 ATT/CLK/DAT/CMD；做 20 题测验'],
+    ['8','核心','DRV8833 真值表与单电机 PWM','测一台 TT 马达正反转、停机'],
+    ['9','核心','四电机 PWM 与电源分区','两块 DRV8833 独立驱动 4 台 TT 马达'],
+    ['10','核心','SG90/MG995 舵机脉宽与扫掠','单独 50 Hz 定时器，扫掠并限角'],
+    ['11','核心','FreeRTOS 任务与调度','两个任务交替输出；认识阻塞与优先级'],
+    ['12','核心','vTaskDelay 与任务通信边界','延时不堵住其他任务；练习共享状态快照'],
+    ['13','核心','工程模块化：bsp、app、协议','motor/ps2/chassis 文件职责划清'],
+    ['14','核心','第 2 周联调与复盘','按键、四电机、舵机、任务一起稳定运行'],
+    ['15','核心','SPI：CPOL/CPHA、LSB、全双工','看波形判断采样沿；硬件 SPI2 收发'],
+    ['16','核心','PS2 接收器：GPIO 模拟与硬件 SPI','读出 ID、按键和摇杆，确认模拟模式'],
+    ['17','核心','摇杆映射、死区、失联停车','串口输出 vx/vy/w；断联自动停轮'],
+    ['18','核心','X 型麦轮运动学与符号验证','手算四轮方向，抬轮验证正向和横移'],
+    ['19','核心','综合作品接线与分模块联调','先单轮再四轮，检查电源与线束'],
+    ['20','核心','全向移动、串口状态和异常处理','六种动作稳定复现，保存调试记录'],
+    ['21','核心','面试演示；CAN/PID 了解即可','3 分钟演示、原理复述；CAN/PID 不深究']
+  ];
+  const theoryBasics=[
+    {id:'01',day:1,title:'先看全貌：电控组到底在做什么',diagram:null,video:videos.intro,html:`
+      <p>把机器人想成一条信息链：<b>手柄给出人的意图 → 单片机读取信号 → 程序算出四个轮子该怎样转 → 驱动板提供电流 → 电机带动车轮 → 串口报告当前状态</b>。电控组要让这条链稳定工作。你会 C 语言，就已经会写“规则”；接下来需要知道规则怎样接触真实的电压、引脚和时间。</p>
+      <h4>先分清“信息”和“能量”</h4><p>STM32 引脚上的高低电平是控制信息，例如“左轮向前”。马达真正需要的电能来自电池，经电机驱动板送给马达。手柄接收器送的是数据，不是电机电源。把控制线和供电线混为一谈，会造成最常见的接线错误。</p>
+      <p><b>以后会反复看到的四层：</b>物理电路（电源、线、器件）→ 单片机外设（GPIO、定时器、SPI）→ C 程序（HAL 调用、计算）→ 机器人行为（亮灯、转轮、移动）。遇到不懂的词，先问它属于哪一层。</p>`,check:'不用看页面，按顺序说出“手柄到轮子转动”的五个环节。'},
+    {id:'02',day:1,title:'电压、电流、电阻和 GND：读懂一根线',diagram:null,video:videos.intro,html:`
+      <p><b>电压</b>是两点之间的电势差，可以把它理解成推动电荷流动的“压力差”，单位是伏特 V。<b>电流</b>是单位时间通过的电荷量，单位是安培 A。电压不是电流：引脚上标 3.3V，不代表它能给马达提供所需电流。<b>电阻</b>限制电流，单位欧姆 Ω。简单电阻支路可以用 I=U/R 估算电流；LED 还要先扣掉 LED 自身的压降。</p>
+      <p>例如一个约 2.0V 压降的 LED 串 330Ω 电阻接在 3.3V 电源上，粗略电流是 (3.3−2.0)/330≈0.004A，即约 4mA。这个数字只是理解限流的例子，实物仍要看 LED、板卡与引脚规格。</p>
+      <h4>GND 为什么必须知道</h4><p><b>GND</b>通常是电路约定的 0V 参考点，也要形成电流回路。两块由不同电源供电的模块若要直接用电平传递数据，通常需要共地，否则“3.3V 高电平”没有共同的参照。共地不是把所有正极直接连起来；电池、降压模块、主控的电压等级仍须分别核对。</p>`,check:'解释“3.3V 引脚不能直接带动马达”和“共地”的含义。'},
+    {id:'03',day:1,title:'高低电平、数字量和模拟量',diagram:null,video:videos.series,html:`
+      <p><b>电平</b>说的是某根线相对 GND 的电压。数字输入把电压归入低或高两个区间，程序通常读为 0 或 1；“高”不是在所有器件上都固定等于 3.3V，也不能把 5V 信号线不加核对就接入 3.3V 系统。需要查双方供电和输入允许电压。按键只有“按下/松开”，适合数字输入。</p>
+      <p><b>模拟量</b>可在一定范围内连续变化，例如电位器的电压。ADC（模数转换器）把连续电压转换成数字数值。PS2 摇杆在手柄内部感知位置，但接收器通常把摇杆值按协议作为数字字节送给 STM32；本项目读它主要用 SPI 风格通信，不是把摇杆电压直接接到 MCU 的 ADC。</p>
+      <h4>输出 1 不等于“无限供电”</h4><p>GPIO 输出高电平只是让引脚接近其逻辑电源电压，而且可输出电流有限。LED 要限流；电机和舵机要由合适电源供电。你要先判断一根线是“电源线”“地线”还是“信号线”，再决定能否连接。</p>`,check:'判断按键、LED 控制线、PS2 摇杆数据、马达电源各属于什么信号或供电。'},
+    {id:'04',day:1,title:'单片机、核心板、引脚：你手里究竟是什么',diagram:null,video:videos.series,html:`
+      <p><b>单片机</b>也叫 MCU，是把处理器、存储器和常用控制外设集成在一片芯片里的小计算机。STM32F103C8T6 是芯片型号；你买的“最小系统板/核心板”是这片芯片加上必要的供电、时钟、复位、接口等电路。板上的 USB 插口、LED 与芯片的功能并不是一回事，不同厂家的核心板连线可能不同。</p>
+      <p><b>CPU</b>按程序执行指令；<b>Flash</b>存放断电后仍保留的程序；<b>SRAM</b>放运行中的变量，断电后内容消失；<b>外设</b>是片内专门做输入输出的硬件，例如 GPIO、定时器、USART、SPI。<b>引脚</b>是芯片与外部电路接触的端点，如 PA0、PB10、PC13。一个引脚可能有普通 GPIO 功能，也可能切换成定时器、串口或 SPI 功能，这叫<b>复用</b>。</p>
+      <p><b>别把 PA0 当成固定功能：</b>在这台车里，PA0 计划用作 TIM2 的 PWM 输出；在别的练习里它也可能被配置为普通输入。程序配置决定它此刻承担哪种角色，芯片数据手册决定它有哪些可选角色。</p>`,check:'分别说出芯片、核心板、CPU、Flash、SRAM、外设、引脚的作用。'},
+    {id:'05',day:1,title:'C 程序怎样变成引脚变化',diagram:null,video:videos.series,html:`
+      <p>你写的 <code>.c</code> 源文件先被<b>编译</b>成处理器能执行的机器指令，再由<b>链接器</b>把多个文件组合成固件。把固件写入 MCU 的 Flash 叫<b>烧录</b>。上电或复位后，芯片先执行启动代码、准备内存与时钟，然后进入 <code>main()</code>；初始化外设后进入 <code>while(1)</code> 循环。嵌入式程序通常不会像电脑小程序那样执行完就退出。</p>
+      <p><b>寄存器</b>是硬件提供给程序读写的控制位置：例如把某一位设为 1，可能使能一个外设；读另一位，可能知道引脚当前是高还是低。<b>HAL</b> 是 ST 提供的硬件抽象库，把多次寄存器操作封装成 C 函数，如 <code>HAL_GPIO_ReadPin</code>。你先用 HAL 学会做事，随后再查参考手册理解它为什么有效。</p>
+      <h4>几个工具各做什么</h4><p><b>CubeMX</b>帮你选择芯片、引脚和外设，生成初始化代码；<b>CubeIDE/Keil</b>负责写代码、编译和调试；<b>ST-Link</b>是电脑与芯片调试接口之间的硬件工具；<b>CubeProgrammer</b>可用来连接、擦除和烧录。CubeMX 生成代码不等于小车功能已完成，功能逻辑仍需要你写。</p>`,check:'从“写出 C 文件”一直讲到“芯片上电后让 LED 亮”，每一步说出工具或部件。'},
+    {id:'06',day:1,title:'时钟：为什么单片机能知道“过了多久”',diagram:null,video:videos.intro,html:`
+      <p>CPU 和外设需要按节拍工作，这个节拍来自<b>时钟</b>。F103 可以使用内部振荡源 HSI 或外部晶振 HSE；PLL 可把输入时钟倍频。系统时钟再经过分频，形成内核使用的 HCLK、外设总线使用的 PCLK 等。你暂时不用记住所有路径，只要记住<b>定时器实际收到的时钟不一定等于芯片标称主频</b>。</p>
+      <p>频率单位 Hz 表示每秒多少次；1kHz 是每秒 1000 次，1MHz 是每秒 100 万次。若一个计数器每秒增加 1000 次，一个计数就是 1ms；数到 1000 次大约经过 1s。定时器、PWM、串口波特率都离不开时钟，时钟配错会造成呼吸灯频率不对、串口乱码或通信失败。</p>
+      <p><b>时钟树</b>是“时钟从哪来、经过哪些分频、最后送到哪里”的示意图。后面的 PWM 计算必须先找 fTIM。以 F103 的常见配置为例：若 APB 分频不为 1，相应定时器时钟通常是该 APB 时钟的 2 倍，所以不能只抄一个 PSC 数字。</p>`,check:'解释频率、时钟树和“为什么照抄别人的 PWM 参数可能不对”。'},
+    {id:'07',day:2,title:'GPIO：最基础的输入输出',diagram:'gpio',video:videos.series,html:`
+      <p><b>GPIO</b>就是“通用输入输出引脚”。输入模式让程序读取外部电平，输出模式让程序控制引脚电平。按键按下后把 PB10 接到 GND，程序可以读到低；让 PC13 输出低或高，板载 LED 可能切换状态。具体 LED 是高电平亮还是低电平亮，要看板子原理图。</p>
+      <h4>推挽、开漏、上拉分别是什么</h4><p><b>推挽输出</b>可主动拉高也可主动拉低，普通数字控制线常用它。<b>开漏输出</b>只主动拉低，拉高需要上拉电阻，可用于需要共享信号线或适当电平转换的场景。<b>输入上拉</b>给没有被外部驱动的输入脚一个稳定默认高电平；按键接 GND 后读到低。上拉不是“让电机转起来的电源”，只是较弱的逻辑偏置。</p>
+      <p><b>悬空</b>指输入脚没有可靠高低电平，可能受干扰乱跳。<b>消抖</b>指处理机械按钮在短时间内反复接通/断开的现象，否则一次按下可能被算成多次。这些词现在只需理解，第三天才接按钮。</p>`,check:'描述一个“上拉输入、按钮接地”的按键在松开与按下时各读到几。'},
+    {id:'08',day:2,title:'定时器与 PWM：频率和占空比是两件事',diagram:'pwm',video:videos.intro,html:`
+      <p><b>定时器</b>是芯片内部会按时钟自动计数的外设。<b>PWM</b>是重复输出高、低电平的方波：一个完整重复叫<b>周期 T</b>；每秒重复次数叫<b>频率 f</b>，f=1/T；每个周期里高电平占的比例叫<b>占空比</b>。例如 1kHz 表示 1ms 一周期；25% 占空比就是每周期大约高 0.25ms、低 0.75ms。</p>
+      <p>STM32 定时器里的 <b>PSC</b> 是预分频参数，<b>ARR</b> 是计数周期终点，<b>CCR</b> 是比较值。以向上计数的常见 PWM 模式为例，fPWM=fTIM/[(PSC+1)(ARR+1)]，占空比大约为 CCR/(ARR+1)。先由 PSC 和 ARR 定重复快慢，再由 CCR 定高电平宽度。括号里的 +1 不能忘。</p>
+      <h4>PWM 为什么能调不同东西</h4><p>LED 亮度和电机开环调速依赖快速开关后的平均效果，但引脚仍是在高低电平之间切换，并没有直接变成连续模拟电压。普通角度舵机看的是约 20ms 帧内的高电平<b>脉宽</b>；约 1.5ms 常是中位，具体范围以实物为准。所以“电机 20kHz PWM”和“舵机约 50Hz 控角”不能混成同一组定时器参数。</p>`,check:'若 fTIM=72MHz、PSC=71、ARR=999，算出 PWM 频率；CCR=250 时占空比约多少？'},
+    {id:'09',day:2,title:'轮询与中断：CPU 怎样知道按键被按下',diagram:null,video:videos.series,html:`
+      <p><b>轮询</b>是程序在循环里反复问“按钮现在按下了吗”。<b>中断</b>像通知：指定事件发生时，CPU 暂停当前工作，先运行一小段处理函数，再回原来的位置。对于外部引脚边沿，STM32 使用 <b>EXTI</b> 检测；<b>NVIC</b> 管理中断是否使能和优先级；进入的处理函数常叫<b>中断服务函数 ISR</b>。HAL 再通过回调函数把事件交给你的代码。</p>
+      <p><b>上升沿</b>是低变高，<b>下降沿</b>是高变低。一个“上拉输入、按下接地”的按钮，按下通常产生下降沿，松开产生上升沿。中断只告诉你“边沿发生过”，不能替你消除机械触点抖动。回调应尽快记录事件，不宜在里面长时间等待或连续打印。</p>
+      <p>轮询不是错误方法：简单程序中它容易理解；当主循环有许多事要做时，中断更方便及时响应。后面练习会先轮询、再改中断，让你亲自看出两者差别。</p>`,check:'一个上拉按钮在按下瞬间触发上升沿还是下降沿？EXTI 和 NVIC 分别做什么？'},
+    {id:'10',day:2,title:'UART 与 SPI：数据为什么必须约定“怎么说”',diagram:'spi',video:videos.spi,html:`
+      <p>两个模块连上电线还不能自动听懂彼此。<b>通信协议</b>约定线的作用、发送顺序、速度以及怎样判断一帧数据有效。<b>UART</b>常用 TX（发送）、RX（接收）和 GND，不另送时钟，因此双方必须约好<b>波特率</b>，例如 115200；数据靠起始位、数据位、停止位分段。本站用 UART 把状态打印到电脑，方便知道程序读到了什么。</p>
+      <p><b>SPI</b>是同步通信：主机提供 SCK/CLK 节拍，MOSI/CMD 从主机送数据，MISO/DAT 把数据送回，CS/ATT 选择设备。发送一个字节时也可以同时接收一个字节。<b>CPOL</b>规定时钟空闲是高还是低；<b>CPHA</b>规定在哪个边沿采样；<b>位序</b>规定先发最高位还是最低位。两端若约定不一致，读回的内容会错。</p>
+      <p>CRTC 清单中的 PS2 <b>游戏手柄</b>接收器使用类似 SPI 的同步串行线，不是电脑老式 PS/2 键盘口。GPIO 手动翻转引脚也能模拟这个时序；硬件 SPI 外设能自动移位。两种方法是实现同一类通信的不同方式，后面都会教。</p>`,check:'用自己的话说出 UART 与 SPI 最大的不同，并指出 PS2 的 ATT、CLK、CMD、DAT 各是什么。'},
+    {id:'11',day:2,title:'电机、驱动板、舵机：谁负责出力',diagram:null,video:videos.servo,html:`
+      <p>TT 马达是<b>有刷直流电机</b>，给它合适电压就转，交换两端电压极性可反转。马达需要的电流通常超过 MCU 引脚可提供的范围，所以 STM32 只发控制信号，<b>DRV8833 驱动板</b>从电池侧取能量去带电机。它内部的<b>H 桥</b>可改变马达两端极性；一块 DRV8833 通常有两路 H 桥，可以分别控制两台 TT 马达。</p>
+      <p><b>开环调速</b>是给一个 PWM 占空比，不测真实轮速就不自动纠偏。电池电压和地面负载变了，实际速度也可能变。这是当前作品允许的范围。<b>闭环</b>会用编码器等反馈测速度，和目标比较再调整输出；高级 PID 暂时只认识这个作用，不需要现在推公式。</p>
+      <p><b>舵机</b>与 TT 马达不同：SG90/MG995 内部自带位置控制结构，外部主要给目标角度对应的脉宽。舵机仍需单独合适电源，控制线不负责提供机械输出所需的电流。DJI M3508、GM6020 是战队后续会接触的无刷执行器，本课程小车按你提供的 CRTC 物资表采用 TT+DRV8833。</p>`,check:'画出“STM32 控制线 → DRV8833 → TT 马达”的能量与信号关系，并解释开环。'},
+    {id:'12',day:2,title:'FreeRTOS：什么叫任务、调度和阻塞',diagram:null,video:videos.rtos,html:`
+      <p>没有操作系统时，你常在一个 <code>while(1)</code> 里依次做所有事。<b>FreeRTOS</b>帮助把工作拆为多个<b>任务</b>，例如“每 20ms 读手柄并控制电机”和“每 200ms 打印状态”。<b>调度器</b>选择当前哪个就绪任务使用 CPU。多数 F103 项目只有一个 CPU 核，任务看起来同时进行，实际是按调度规则交替获得执行时间。</p>
+      <p>任务用 <code>vTaskDelay</code> 等待时进入<b>阻塞态</b>，这段时间其他任务可以运行；忙等则反复占着 CPU。<b>优先级</b>影响谁先执行，但把所有任务都设为最高优先级不会让系统变快。每个任务需要自己的<b>栈</b>存局部变量和调用现场；动态创建任务还会使用堆内存。F103C8 的内存有限，所以要少建任务、关注栈余量。</p>
+      <p>当前只要求知道：任务是什么、为什么要让出 CPU、延时为什么会影响执行顺序。消息队列、信号量和高级实时调度留到需要时再深入。</p>`,check:'如果控制任务在等待 20ms，CPU 是否必须什么都不做？栈和 Flash 有什么区别？'},
+    {id:'13',day:2,title:'麦轮和运动学：先约定方向，再计算轮子',diagram:'wheel',video:videos.wheel,html:`
+      <p>普通车轮主要允许前后滚动；<b>麦克纳姆轮</b>周围有斜着安装的小滚子，四轮以正确布局组合，就能让前后、左右和旋转的运动分量叠加。<b>运动学解算</b>在这里的意思是：已知你希望车体怎么动，计算四个轮子各应朝哪边、以多大比例转动。它首先是方向和几何关系，不等同于 PID。</p>
+      <p>以后都采用同一套坐标：车头方向为 <b>+vx</b>，车体左方为 <b>+vy</b>，从车顶看逆时针为 <b>+w</b>；FL/FR/RL/RR 分别是左前、右前、左后、右后。若不先固定“前、左、正转”的含义，即使公式没抄错，实车也可能向相反方向跑。X 型和 O 型指滚子朝向形成的布局，不能拿一种布局的符号直接套另一种。</p>
+      <p>基础作品只做归一化比例分配：摇杆向前产生 vx，摇杆横推产生 vy，旋转控制产生 w；把三者组合成四轮命令，再由 H 桥/PWM 执行。真正落地时先把车轮悬空，逐个核对“正转”，然后低速验证。轮径、车体尺寸和闭环控制属于后续更精确模型。</p>`,check:'不看图指出 FL、FR、RL、RR 的位置，并说出 +vx、+vy、+w 分别是什么方向。'}
+  ];
+  const theoryTerms=[
+    ['MCU / 单片机','一片集成 CPU、存储器和控制外设的芯片'],['核心板','芯片加供电、时钟、复位和引出接口的板子'],
+    ['GPIO','可配置为普通数字输入或输出的引脚'],['引脚复用','同一引脚在 GPIO 与定时器、串口等功能间切换'],
+    ['Flash','断电后仍保存固件的存储区'],['SRAM','运行时存变量、断电后不保留的内存'],
+    ['寄存器','程序读写外设控制和状态的位置'],['HAL','把外设寄存器操作封装为 C 函数的库'],
+    ['时钟 / Hz','硬件工作节拍及每秒重复次数'],['定时器','按时钟自动计数的片内外设'],
+    ['PWM','周期性切换高低电平的信号'],['占空比','一个周期内高电平时间所占比例'],
+    ['上拉','让未被外部驱动的输入默认稳定为高'],['推挽','引脚能主动输出高、低电平的模式'],
+    ['EXTI / NVIC','外部边沿检测 / 中断管理'],['UART','双方约好速率、无需独立时钟线的串行通信'],
+    ['SPI','由主机提供时钟的同步串行通信'],['CPOL / CPHA','SPI 的空闲时钟电平 / 采样边沿设置'],
+    ['H 桥','用功率开关改变电机两端电压方向的电路'],['开环 / 闭环','不测结果直接输出 / 测结果并纠偏'],
+    ['FreeRTOS 任务','由调度器安排运行的一段持续工作'],['阻塞','任务等待事件或时间、暂时不占 CPU'],
+    ['vx / vy / w','车体前进、向左、逆时针旋转的控制量'],['烧录','把编译后的固件写入单片机 Flash']
+  ];
+  const deepLessons=[
+    {module:'gpio',title:'01 · 从空工程到第一盏灯',video:videos.series,html:`
+      <p><b>目标：</b>知道“写 C 代码”如何变成 PC13 的电平变化。准备 F103C8T6、ST-Link、USB 线；先让电机、电池与板子断开。</p>
+      <h5>为什么这样做</h5><p>STM32 的程序存放在 Flash，复位后从启动地址执行。GPIO 是引脚控制外设；CPU 写 GPIO 输出寄存器，输出级才改变引脚电平。多数 Blue Pill 板的 PC13 灯接在 3.3V 与引脚之间，因此 PC13 拉低时亮；不同板子必须看原理图或实测。推挽输出可主动拉高和拉低，适合普通 LED；开漏输出拉高需上拉电阻。</p>
+      <h5>接线与 CubeMX</h5><ol><li>ST-Link 的 SWDIO 接 PA13，SWCLK 接 PA14，GND 接 GND；供电方式先确认，避免两个电源同时接入。</li><li>CubeMX 新建工程，按芯片型号选择 STM32F103C8Tx。SYS → Debug 选 Serial Wire，保留 SWD 调试口。</li><li>PC13 选 GPIO_Output；输出方式 Push-Pull、No pull、Low speed，初始电平 High。生成 CubeIDE 或 Keil 工程。</li><li>在 main.c 的 while(1) 用户区写下面三行，编译、下载；BOOT0 通常保持 0。</li></ol>
+      <pre>HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+HAL_Delay(500);</pre>
+      <p><b>现象与排错：</b>LED 约每半秒换一次状态。下载失败先查芯片供电、SWDIO/SWCLK/GND 和 BOOT0；程序运行但灯不亮，查板上 LED 的极性与 PC13 是否真连接 LED。不要把马达接到 GPIO。</p>
+      <p class="checkpoint"><b>自己解释：</b>为什么拉低反而亮？如果改用外接 LED，为什么一定要限流电阻？</p>`},
+    {module:'gpio',title:'02 · 输入、上拉和按键消抖',video:videos.series,html:`
+      <p><b>目标：</b>PB10 按下时改变 LED，松开后保持稳定。用按钮一端接 PB10，另一端接 GND。</p>
+      <h5>为什么这样做</h5><p>输入脚只“观察”电压，不会替你决定空闲时的 0/1。按钮断开后 PB10 悬空，附近噪声即可改变读数。内部上拉把空闲脚拉到高电平，按下接地则为低电平。机械接点有弹跳，同一次按压可能产生多个高低变化，所以“读到低就加一”会多计数。</p>
+      <h5>CubeMX 与代码</h5><ol><li>PB10 选 GPIO_Input，Pull-up；PC13 保持输出。</li><li>把下列变量放在 main.c 的 USER CODE BEGIN 2 区或用户变量区；while(1) 中调用读取逻辑。</li><li>按下先等待 20 ms，再重新读取；直到松开才允许下一次按下。这个轮询版先用于理解，后面再换 EXTI。</li></ol>
+      <pre>if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10) == GPIO_PIN_RESET) {
+  HAL_Delay(20);
+  if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10) == GPIO_PIN_RESET) {
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    while (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10) == GPIO_PIN_RESET) {
+      HAL_Delay(1);
+    }
+  }
+}</pre>
+      <p><b>现象与排错：</b>每按一次只切换一次。一直触发：上拉没开或按钮接错；完全没反应：读的是错误引脚。四脚轻触开关同一侧的两个脚常内部相连，接线前用万用表通断档确认。</p>
+      <p class="checkpoint"><b>自己解释：</b>把 Pull-up 去掉会怎样？为什么检测两次低电平仍要等松开？</p>`},
+    {module:'gpio',title:'03 · 时钟树、定时器计数和 PWM 呼吸灯',video:videos.intro,html:`
+      <p><b>目标：</b>用 PA6/TIM3_CH1 驱动外接 LED，做一次呼吸灯。LED 串接合适限流电阻到 GND；PC13 板载灯不能直接当作 TIM3_CH1 使用。</p>
+      <h5>先算清频率</h5><p>定时器从自己的输入时钟 fTIM 开始计数，预分频器每 PSC+1 个时钟加一次计数，计到 ARR 后回零，因此 fPWM = fTIM / [(PSC+1)(ARR+1)]。PWM 模式 1 中 CCR 决定高电平持续的计数。先在 CubeMX Clock Configuration 核对 HCLK/APB1；若 APB1 分频不为 1，APB1 定时器时钟通常为 PCLK1 的 2 倍。仅在 fTIM 确认为 72 MHz 时，PSC=71、ARR=999 才是 1 kHz；CCR=250 约为 25%。</p>
+      <h5>CubeMX 与代码</h5><ol><li>选择 TIM3 → PWM Generation CH1，确认 PA6；Counter Clock Source 选 Internal Clock，Counter Mode 选 Up。</li><li>在 Parameter Settings 填 PSC=71、Counter Period=999、Pulse=0；生成工程。</li><li>在 MX_TIM3_Init() 后调用 HAL_TIM_PWM_Start；随后逐步修改 CCR。下面的循环放在 while(1) 中。</li></ol>
+      <pre>HAL_TIM_PWM_Start(&amp;htim3, TIM_CHANNEL_1); /* 放在 USER CODE BEGIN 2 */
+for (uint16_t c = 0; c &lt;= 999; c += 10) {
+  __HAL_TIM_SET_COMPARE(&amp;htim3, TIM_CHANNEL_1, c);
+  HAL_Delay(8);
+}
+for (int c = 999; c &gt;= 0; c -= 10) {
+  __HAL_TIM_SET_COMPARE(&amp;htim3, TIM_CHANNEL_1, c);
+  HAL_Delay(8);
+}</pre>
+      <p><b>现象与排错：</b>外接 LED 逐渐亮、逐渐暗。常亮或全灭：核对 LED 极性、TIM3_CH1 管脚、PWM Start、CCR 范围；频率不对：回到时钟树核对 fTIM，而非只看 72 MHz 主频。频率控制“多久重复”，占空比控制“每次亮多久”。</p>
+      <p class="checkpoint"><b>自己计算：</b>若 fTIM=72 MHz、PSC=71、ARR=19999，频率是多少？答案是 50 Hz，后面给舵机用。</p>`},
+    {module:'gpio',title:'04 · EXTI 中断：记录事件，主循环处理',video:videos.series,html:`
+      <p><b>目标：</b>按钮按下触发 PB10/EXTI10，把事件交给主循环；不在中断里做延时或长串口打印。</p>
+      <h5>为什么这样做</h5><p>GPIO 轮询是 CPU 不断问“按了吗”；EXTI 则是电平边沿触发请求，NVIC 决定让 CPU 暂停当前代码并运行中断处理。中断适合“赶紧记一笔”，不适合阻塞 20 ms：回调卡住会影响其他中断和系统时序。按键抖动仍存在，中断不会自动消抖。</p>
+      <h5>CubeMX 与代码</h5><ol><li>PB10 选 GPIO_EXTI10，Pull-up，触发选 Falling edge；NVIC 开 EXTI15_10 interrupt。</li><li>在 main.c 用户全局区声明 volatile 变量；在 USER CODE BEGIN 4 写 HAL_GPIO_EXTI_Callback。</li><li>主循环检测到待处理标志后等待约 20 ms，再读 PB10；确认仍低才切灯。等待松开后重新允许下一次事件。</li></ol>
+      <pre>volatile uint8_t key_event = 0;
+void HAL_GPIO_EXTI_Callback(uint16_t pin) {
+  if (pin == GPIO_PIN_10) key_event = 1;
+}
+/* while(1) 中 */
+if (key_event) {
+  key_event = 0;
+  HAL_Delay(20);
+  if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10) == GPIO_PIN_RESET)
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+}</pre>
+      <p><b>现象与排错：</b>按键触发切灯。若一次按压切换多次，需要补“松开后才重新接受”的状态或时间门限；若回调从未进，检查 NVIC 与触发边沿；若程序卡住，确认没有把阻塞操作放回调里。</p>
+      <p class="checkpoint"><b>自己解释：</b>volatile 在这里解决了什么？它能替代完整的并发同步吗？</p>`},
+    {module:'gpio',title:'05 · USART：让板子说出自己的状态',video:videos.series,html:`
+      <p><b>目标：</b>用 USART1 定期把按键电平打印到电脑。需要 USB-TTL 转换器；普通 ST-Link V2 仿真器不等于 USB 串口。</p>
+      <h5>为什么这样做</h5><p>UART 没有独立时钟线，两端事先约好波特率，并通过起始位、数据位和停止位识别字节。TX 要接对方 RX，RX 要接对方 TX，GND 必须共地。串口日志能把“程序到底读到了什么”直接显现，是调试手柄和电机前最便宜的观察窗口。</p>
+      <h5>接线、配置、代码</h5><ol><li>PA9/USART1_TX → USB-TTL RX，PA10/USART1_RX → USB-TTL TX，GND → GND。确认转换器是 3.3V 逻辑电平。</li><li>CubeMX 选 USART1 Asynchronous，115200 baud，8 data bits、无校验、1 stop bit。</li><li>在 main.c 包含 stdio.h，用 snprintf 生成字符串；在 while(1) 每 200 ms 发送一次。</li></ol>
+      <pre>char line[48];
+int n = snprintf(line, sizeof line, "PB10=%u\\r\\n",
+                 (unsigned)HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10));
+if (n &gt; 0 &amp;&amp; n &lt; (int)sizeof line)
+  HAL_UART_Transmit(&amp;huart1, (uint8_t *)line, (uint16_t)n, 100);
+HAL_Delay(200);</pre>
+      <p><b>现象与排错：</b>串口工具每 200 ms 显示一次 1 或 0。乱码先看双方波特率与时钟；没内容看 TX/RX 是否交叉、共地、串口号是否选对；n 超出缓冲区时不要把 snprintf 返回值直接当成可发送长度。</p>
+      <p class="checkpoint"><b>自己解释：</b>为什么 UART 不需要 CLK，却必须双方约好波特率？</p>`},
+    {module:'gpio',title:'06 · 第一周边界：ADC、I2C、DMA 先认识名字',video:videos.intro,html:`
+      <p>电导不是韩导的速通目录还介绍 ADC、I2C 等功能；近期 CRTC 电控训练的核心是 GPIO/PWM、控制、SPI/PS2 与麦轮。本周只需知道：ADC 把模拟电压变成数字量；I2C 用两根信号线和地址访问器件；DMA 能让外设与内存搬数据时减少 CPU 参与。它们以后可能用于电池采样、OLED 或传感器，但不影响当前小车的最低可运行方案。</p>
+      <p class="checkpoint"><b>第一周验收：</b>脱离页面说明推挽、上拉、消抖、EXTI、UART、PSC/ARR/CCR；独立完成 LED、按键和呼吸灯，再做一次随机测验。</p>`},
+    {module:'motor',title:'07 · TT 电机、H 桥与开环调速',video:videos.servo,html:`
+      <p><b>目标：</b>一块 DRV8833 先只接一台 TT 马达，完成正转、滑行停车、反转。电机电源先按实物铭牌与驱动板说明核对，再低占空比测试。</p>
+      <h5>为什么 GPIO/PWM 不能直接接电机</h5><p>电机启动电流远高于单片机引脚可承受电流，而且换向时会产生扰动。H 桥用功率开关改变电机两端电压极性；DRV8833 每片有两路 H 桥。AIN1/AIN2 为 10 时一方向转、01 时反向、00 时滑行、11 时制动。输入 PWM/0 或 0/PWM 可以调平均电压，但开环占空比不等于固定转速，负载和电池电压都会影响转速。</p>
+      <h5>接线与 CubeMX</h5><ol><li>PA0/TIM2_CH1 接 AIN1，PA1/TIM2_CH2 接 AIN2；AOUT1/AOUT2 接 TT 马达；驱动 VM 接经核验的电机电源，GND 与 STM32 共地。</li><li>查看实际驱动模块是否引出 nSLEEP、VCC 等引脚，按模块资料使能；不同小板的引脚排序不能靠网图猜。</li><li>TIM2 CH1/CH2 都设 PWM，若 fTIM=72 MHz，PSC=0、ARR=3599 则频率 20 kHz；两个通道都 Start，初始 CCR 均为 0。</li></ol>
+      <pre>HAL_TIM_PWM_Start(&amp;htim2, TIM_CHANNEL_1);
+HAL_TIM_PWM_Start(&amp;htim2, TIM_CHANNEL_2);
+/* 正转 20%：先将另一通道清零 */
+__HAL_TIM_SET_COMPARE(&amp;htim2, TIM_CHANNEL_2, 0);
+__HAL_TIM_SET_COMPARE(&amp;htim2, TIM_CHANNEL_1, 720);
+HAL_Delay(1000);
+/* 换向前停机 */
+__HAL_TIM_SET_COMPARE(&amp;htim2, TIM_CHANNEL_1, 0);
+HAL_Delay(100);
+__HAL_TIM_SET_COMPARE(&amp;htim2, TIM_CHANNEL_2, 720);</pre>
+      <p><b>现象与排错：</b>抬轮后先正转，再停，再反转。电机不动，依次查 VM、nSLEEP、共地、输出端、PWM Start；MCU 重启时先断电，检查驱动电源电流余量和接线。20% 不一定足以克服静摩擦，可小幅提高占空比，但不要一上来满速。</p>
+      <p class="checkpoint"><b>自己解释：</b>00 与 11 为什么都叫“停”，感觉却可能不同？</p>`},
+    {module:'motor',title:'08 · 四轮引脚规划与舵机脉宽',video:videos.servo,html:`
+      <p><b>目标：</b>让四个轮子各自可换向，并独立驱动 SG90 或 MG995 舵机。单车四个 TT 马达需要两块双路 DRV8833。</p>
+      <h5>为什么舵机和电机都叫 PWM，却不能共用频率</h5><p>电机通过高频开关改变平均驱动电压；普通角度舵机读取的是每帧高电平持续的脉宽，常见帧周期约 20 ms（50 Hz），中位约 1.5 ms。电机用 20 kHz 时一帧仅 50 μs，舵机根本读不到 1.5 ms 脉宽。SG90/MG995 的实际可用脉宽、转角和电流以购入器件说明为准，先用 1100–1900 μs 保守扫掠，避免顶死。</p>
+      <h5>接线与配置</h5><ol><li>四台 TT 的八个输入依次接 TIM2_CH1–4（PA0–PA3）和 TIM3_CH1–4（PA6、PA7、PB0、PB1）；每台马达占两路。</li><li>舵机信号接 PB6/TIM4_CH1，电源接足额 5V 降压模块，GND 与板子共地，舵机电流不要经 MCU 引脚。</li><li>TIM4 若 fTIM=72 MHz，设 PSC=71、ARR=19999，计数步长 1 μs，CCR=1500 对应 1.5 ms；电机两组定时器仍为 20 kHz。</li></ol>
+      <pre>HAL_TIM_PWM_Start(&amp;htim4, TIM_CHANNEL_1);
+__HAL_TIM_SET_COMPARE(&amp;htim4, TIM_CHANNEL_1, 1500);
+HAL_Delay(500);
+for (uint16_t us = 1100; us &lt;= 1900; us += 20) {
+  __HAL_TIM_SET_COMPARE(&amp;htim4, TIM_CHANNEL_1, us);
+  HAL_Delay(30);
+}</pre>
+      <p><b>现象与排错：</b>舵机先到中位再缓慢扫掠。抖动或复位先看 5V 供电和共地；扫掠方向不合预期只是安装方向不同，切勿超行程硬拧。四轮先逐个标记 FL/FR/RL/RR 并确认“正转”对应车体前进。</p>
+      <p class="checkpoint"><b>自己计算：</b>PSC=71、ARR=19999、fTIM=72 MHz 时，CCR=1500 对应多少毫秒高电平？</p>`},
+    {module:'motor',title:'09 · FreeRTOS 两任务与周期执行',video:videos.rtos,html:`
+      <p><b>目标：</b>一个任务读输入和控制，另一个任务每隔一段时间报告状态。先用 LED 与串口替代电机，确认调度正常。</p>
+      <h5>为什么任务需要阻塞</h5><p>FreeRTOS 用优先级和时间片选择就绪任务；任务若永远忙等，会占用 CPU。vTaskDelay(pdMS_TO_TICKS(20)) 将当前任务阻塞一段 tick，其他就绪任务可运行。pdMS_TO_TICKS 把毫秒换成系统节拍；如果 tick 频率低于目标周期，实际间隔会受取整影响。vTaskDelay 是相对延时，循环执行时间会叠加；严格周期任务可了解 vTaskDelayUntil，入门作品 20 ms 级控制先用相对延时即可。</p>
+      <h5>CubeMX 与任务代码</h5><ol><li>Middleware → FreeRTOS，选择可用接口；创建 ControlTask 和 StatusTask，优先级均 Normal，堆栈按生成工程的单位核对。</li><li>由 CubeMX 生成启动调度器的代码，不要在 main.c 的 while(1) 中再做控制。把下面循环放到对应任务函数。</li><li>打开栈溢出检测或调试时查看任务栈余量；F103C8 SRAM 有限，先控制任务数和局部数组。</li></ol>
+      <pre>void ControlTask(void *argument) {
+  for (;;) {
+    /* 先读按键，再输出 LED；作品阶段替换成 PS2 + 底盘 */
+    vTaskDelay(pdMS_TO_TICKS(20));
+  }
+}
+void StatusTask(void *argument) {
+  for (;;) {
+    /* 仅打印状态快照，不在这里修改电机命令 */
+    vTaskDelay(pdMS_TO_TICKS(200));
+  }
+}</pre>
+      <p><b>现象与排错：</b>控制任务约 20 ms 执行一次，打印约 200 ms 一次。只运行一个任务，先检查另一个任务是否创建成功、是否卡在阻塞 I/O、栈是否溢出；不要以为在任务里反复 HAL_Delay 就等同于 vTaskDelay。</p>
+      <p class="checkpoint"><b>自己解释：</b>控制任务被阻塞 20 ms 时，CPU 可以做什么？</p>`},
+    {module:'motor',title:'10 · 工程结构：把硬件、协议和决策分开',video:videos.intro,html:`
+      <p><b>目标：</b>知道遇到“手柄读取错”“轮子方向反”“底盘公式错”分别改哪个文件，避免把所有逻辑塞进 main.c。</p>
+      <h5>分层的因果关系</h5><p>GPIO/TIM/UART 的初始化由 CubeMX 生成；bsp_motor.c 负责把某台马达的有符号占空比变成两路 CCR；ps2.c 负责通信与按键/摇杆解析；mecanum.c 只把 vx、vy、w 映射为四轮值；app_tasks.c 周期性调用它们。这样一个层只回答一个问题，换驱动板不必重写麦轮公式，换手柄也不必重写电机 PWM。</p>
+      <h5>具体操作</h5><ol><li>在 Core/Inc 创建 motor.h、ps2.h、mecanum.h、app_tasks.h，Core/Src 创建对应 .c；将它们加入工程编译列表。</li><li>在自动生成文件的 USER CODE 区 include 自己的头文件；不要在 CubeMX 可能覆盖的区域长期手改。</li><li>接口先保持小：Motor_Set(id,duty)、PS2_Read(out)、Mecanum_Mix(vx,vy,w,out)。一个模块只暴露必要的函数。</li><li>每增加模块就编译一次，避免到第 21 天才发现头文件、时钟句柄或链接问题。</li></ol>
+      <pre>/* app_tasks.c 内的控制路径 */
+if (PS2_Read(&amp;pad)) {
+  Mecanum_Mix(vx, vy, w, wheel);
+  for (uint8_t i = 0; i &lt; 4; ++i) Motor_Set(i, wheel[i]);
+} else {
+  for (uint8_t i = 0; i &lt; 4; ++i) Motor_Set(i, 0.0f);
+}</pre>
+      <p><b>现象与排错：</b>新生成代码后用户文件仍参与编译；如果出现 undefined reference，检查 .c 是否加入工程、函数名是否一致；如果 multiple definition，检查全局变量是否只在一个 .c 中定义。</p>
+      <p class="checkpoint"><b>自己解释：</b>电机左右接反为什么优先改电机标定，而不是改 PS2 协议？</p>`},
+    {module:'spi',title:'11 · SPI 四根线与采样边沿',video:videos.spi,html:`
+      <p><b>目标：</b>能看波形说出哪一方提供时钟、何时发送和采样，知道为什么 CPOL/CPHA 必须匹配。</p>
+      <h5>先理解协议</h5><p>主机用 SCK 提供节拍，MOSI 输出、MISO 输入；一次传输两个方向可同时移动位。选通信号决定当前与哪台设备交谈。CPOL 定义时钟空闲电平；CPHA 定义第一或第二个边沿采样。模式不匹配可能错一位或整帧错。PS2 游戏手柄接收器的 CMD/DAT/CLK/ATT 对应 MOSI/MISO/SCK/片选，但它是 SPI 风格协议，帧间等待和兼容性需按实物确认。常见接收器低位先传、时钟空闲高；不能把这种经验当作每个型号的保证。</p>
+      <h5>本项目接线与验证</h5><ol><li>PB13 → CLK，PB15 → CMD，PB14 ← DAT，PB12 → ATT；接收器 GND 与板子共地。</li><li>先读产品标注确认接收器供电和信号电平。若接收器输出高于 STM32 引脚容许电压，先做电平匹配；不要仅凭同一款外壳判断。</li><li>把手柄先配对。每次读帧先 ATT 拉低，交换命令与响应，再 ATT 拉高。先低速、短线测试。</li></ol>
+      <p><b>现象与排错：</b>有效轮询应出现稳定头部与可变化的按键字节。全 0xFF 常见于未配对、DAT 悬空、ATT 未选中或无供电；全 0x00 也可能是短路/时序错误。先在串口打原始十六进制帧，再做摇杆映射。</p>
+      <p class="checkpoint"><b>自己解释：</b>为什么只设置 CPOL 而忽略 CPHA，仍可能读错每个字节？</p>`},
+    {module:'spi',title:'12 · GPIO 模拟 PS2：先看懂每一位',video:videos.ps2,html:`
+      <p><b>目标：</b>用普通 GPIO 手动生成时钟，读回一个字节；这是定位手柄时序问题的基线。</p>
+      <h5>CubeMX 与动作顺序</h5><ol><li>PB12/13/15 设推挽输出，PB14 设输入；ATT、CLK、CMD 初始高。</li><li>每个 bit 先把 CMD 设成待发送位，再将 CLK 拉低；保持几微秒后 CLK 拉高，并在接收器规定的稳定时刻采样 DAT。不同接收器所需时序可能不同，要用实物调。</li><li>命令 0x01、0x42、0x00 逐字节发送，留足字节间隔，接收对应字节；全部八位按 bit0 到 bit7 顺序传。</li></ol>
+      <pre>static uint8_t PS2_ShiftByte(uint8_t tx) {
+  uint8_t rx = 0;
+  for (uint8_t i = 0; i &lt; 8; ++i) {
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15,
+                      (tx &amp; (1u &lt;&lt; i)) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);
+    delay_us(3);  /* 用 TIM1 的 1 MHz 计数实现 */
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
+    delay_us(3);
+    if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == GPIO_PIN_SET)
+      rx |= (uint8_t)(1u &lt;&lt; i);
+  }
+  return rx;
+}</pre>
+      <p><b>现象与排错：</b>先只打印原始返回。若 ID 不稳定，延长半周期、检查 ATT 与接地；若每字节似乎错位，调整 DAT 采样点。这里的 delay_us 必须自己按 TIM1 时钟实现，不能用空循环假定 1 μs。网页综合作品部分给出完整 GPIO 与硬件 SPI 双实现。</p>
+      <p class="checkpoint"><b>自己解释：</b>为何循环从 i=0 开始而非 i=7？</p>`},
+    {module:'spi',title:'13 · 硬件 SPI2、报文和失联停车',video:videos.spi,html:`
+      <p><b>目标：</b>把移位操作交给 SPI2，解析按键和摇杆，并让无效帧及时停车。</p>
+      <h5>CubeMX 与传输</h5><ol><li>将 PB13/14/15 从 GPIO 改成 SPI2：Master、2 Lines、8 bits、LSB First、CPOL High、CPHA 2Edge、NSS Software；PB12 仍是普通 GPIO 片选。</li><li>选择慢速分频，确认空闲电平与接收器一致。每字节使用 HAL_SPI_TransmitReceive；整帧期间 ATT 保持低。</li><li>校验返回帧标志 0x5A。常见 0x73 表示模拟模式，0x41 是数字模式；按键常为低有效。模拟模式读摇杆，中心通常接近 128，死区先取 10–20 个计数。</li><li>只有有效帧才更新时间戳；超过约 200 ms 没有有效帧，四轮目标全部清零。</li></ol>
+      <pre>uint8_t tx = 0x42, rx = 0;
+HAL_SPI_TransmitReceive(&amp;hspi2, &amp;tx, &amp;rx, 1, 20);
+/* 实际轮询需先发送 0x01 并交换完整帧 */
+if (HAL_GetTick() - last_valid_ms &gt; 200u) {
+  for (uint8_t i = 0; i &lt; 4; ++i) Motor_Set(i, 0.0f);
+}</pre>
+      <p><b>现象与排错：</b>摇杆轻推时轴值连续变化，松开回中心；断开接收器后车停。若只有数字模式，查接收器说明并执行其模拟模式配置序列；无线手柄并非所有兼容品都支持相同命令。若 GPIO 版可用而硬件版不可用，优先比较 CPOL、CPHA、位序、片选与字节间隙。</p>
+      <p class="checkpoint"><b>自己解释：</b>为什么校验 0x5A 仍不够，需要超时停车？</p>`},
+    {module:'wheel',title:'14 · 麦轮运动学：从方向表推到四轮公式',video:videos.wheel,html:`
+      <p><b>目标：</b>先能手算前进、左移、逆时针三种基本动作的四轮正负，再让底盘抬轮验证。</p>
+      <h5>定义坐标才能谈正负</h5><p>以车头为 +vx，车左为 +vy，从车顶看逆时针为 +w。车轮顺序固定为 FL 左前、FR 右前、RL 左后、RR 右后。图中的 X 型指从上方观察滚子排成 X，轮子安装顺序要与实际核对。每只轮的正转都先标定为“推动整车向前”。在这个约定下，X 型归一化混控为：FL=vx−vy−w，FR=vx+vy+w，RL=vx+vy−w，RR=vx−vy+w。O 型的横移符号要按安装方向重新推导，不能只改图名。</p>
+      <h5>手算与代码</h5><ol><li>前进：vx=+1，vy=w=0 → 四轮都 +。</li><li>左移：vy=+1 → FL−、FR+、RL+、RR−。</li><li>逆时针：w=+1 → FL−、FR+、RL−、RR+。</li><li>叠加后若某轮超过 1，用四轮最大绝对值与 1 的较大者作分母，同步缩小四轮命令。</li></ol>
+      <pre>out[0] = vx - vy - w;  /* FL */
+out[1] = vx + vy + w;  /* FR */
+out[2] = vx + vy - w;  /* RL */
+out[3] = vx - vy + w;  /* RR */
+float m = 1.0f;
+for (int i = 0; i &lt; 4; ++i)
+  if (fabsf(out[i]) &gt; m) m = fabsf(out[i]);
+for (int i = 0; i &lt; 4; ++i) out[i] /= m;</pre>
+      <p><b>现象与排错：</b>抬轮低速测试三种动作；落地后若横移变旋转，先查轮位置与正转标定，再核对公式。开环车可能走偏，当前验收标准是可重复完成基础动作，闭环 PID 留待比赛阶段。</p>
+      <p class="checkpoint"><b>自己手算：</b>vx=0.5、vy=0.5、w=0 时四轮分别是多少？</p>`},
+    {module:'wheel',title:'15 · 合并成面试作品：输入、混控、输出、状态',video:videos.wheel,html:`
+      <p><b>目标：</b>让 PS2 摇杆控制麦轮底盘前后、左右、旋转；串口打印当前模式与四轮命令。综合作品页给出全接线表、模块代码与调试顺序。</p>
+      <h5>先做正确的数据链</h5><ol><li>不接电机，只打印 PS2 原始 ID、按键和四轴；记录中位、方向与可用范围。</li><li>将三个控制量转成 −1 到 +1：前后 vx、左右 vy、旋转 w；对中心做死区，避免松手后爬行。</li><li>把 vx、vy、w 交给 Mecanum_Mix；用串口看四轮结果与手算一致。</li><li>车轮悬空，逐台执行 Motor_Set 正反转标定；再做前进、左移、旋转；最后落地低速测试。</li><li>手柄失联或帧无效立即送 0；演示时说明开环受负载和电压影响。</li></ol>
+      <p><b>面试复述链条：</b>手柄通过同步串行协议送回摇杆值 → MCU 在 20 ms 控制任务中解码 → 死区与坐标映射 → X 型公式给出四轮方向与比例 → 定时器 PWM 与 DRV8833 驱动 TT 马达 → USART 输出状态。每一个箭头都能指到网站中的一个模块。</p>
+      <p class="checkpoint"><b>最终验收：</b>六种运动至少各演示两次；松开摇杆停轮；断开接收器停轮；能说明自己怎样排查过一次接线或符号错误。</p>`}
+  ];
+  const diagrams={
+    gpio:`<svg viewBox="0 0 520 220" role="img" aria-label="GPIO 推挽输出和上拉输入"><rect x="8" y="8" width="504" height="204" rx="12" fill="#fff" stroke="#b8cbd1"/><text x="24" y="34">GPIO：输出与输入</text><rect x="25" y="53" width="105" height="51" rx="7" fill="#dcecef"/><text x="39" y="84">输出寄存器</text><path d="M130 78h73m0 0v-23m0 23v23m0-23h53" stroke="#145b70" stroke-width="3" fill="none"/><rect x="171" y="44" width="65" height="25" rx="5" fill="#f8df88"/><text x="184" y="61">上管</text><rect x="171" y="90" width="65" height="25" rx="5" fill="#f8df88"/><text x="184" y="107">下管</text><circle cx="258" cy="78" r="5" fill="#145b70"/><path d="M263 78h68" stroke="#145b70" stroke-width="3"/><text x="339" y="83">输出引脚</text><path d="M26 145h127m0 0v-19m0 19h45" stroke="#145b70" stroke-width="3" fill="none"/><rect x="53" y="122" width="96" height="37" rx="6" fill="#e7f1f3"/><text x="72" y="145">内部上拉</text><text x="208" y="149">PB10：松开 = 高，按下 = 低</text><text x="26" y="191">说明：推挽可主动输出高、低电平；输入上拉防止悬空。</text></svg>`,
+    pwm:`<svg viewBox="0 0 520 220" role="img" aria-label="PWM 周期和高电平宽度"><rect x="8" y="8" width="504" height="204" rx="12" fill="#fff" stroke="#b8cbd1"/><text x="25" y="36">PWM：周期与占空比</text><path d="M48 151h423M48 64v96" stroke="#607c87" stroke-width="2"/><path d="M52 150V79h100v71h110V79h100v71h96" fill="none" stroke="#d79f13" stroke-width="4"/><path d="M52 170h210m-210-6v12m210-12v12" stroke="#145b70" stroke-width="2"/><text x="111" y="190">一个周期 T</text><text x="62" y="70">高电平</text><text x="285" y="110">高电平宽度由 CCR 决定</text><text x="25" y="207">频率 = fTIM ÷ [(PSC+1)(ARR+1)]</text></svg>`,
+    spi:`<svg viewBox="0 0 520 220" role="img" aria-label="PS2 接收器四根同步串行信号线"><rect x="8" y="8" width="504" height="204" rx="12" fill="#fff" stroke="#b8cbd1"/><text x="22" y="36">PS2 同步串行：先选中，再交换字节</text><text x="25" y="70">ATT</text><path d="M80 56h32v19h320v-19h48" stroke="#8a5b72" stroke-width="3" fill="none"/><text x="25" y="113">CLK</text><path d="M80 99h52V82h26v17h26V82h26v17h26V82h26v17h26V82h26v17h26V82h26v17h52" stroke="#145b70" stroke-width="3" fill="none"/><text x="25" y="148">CMD</text><path d="M80 138h74v-13h63v13h63v-13h63v13h90" stroke="#d79f13" stroke-width="3" fill="none"/><text x="25" y="181">DAT</text><path d="M80 171h74v-13h63v13h63v-13h63v13h90" stroke="#579a84" stroke-width="3" fill="none"/><text x="354" y="198">低位先发</text></svg>`,
+    wheel:`<svg viewBox="0 0 520 255" role="img" aria-label="X 型麦轮的左前右前左后右后位置"><rect x="8" y="8" width="504" height="239" rx="12" fill="#fff" stroke="#b8cbd1"/><text x="23" y="34">X 型麦轮布局（从车顶俯视）</text><rect x="177" y="68" width="165" height="129" rx="12" fill="#e4f0f2" stroke="#80aeb8"/><text x="241" y="137">车体</text><rect x="145" y="76" width="25" height="43" rx="5" fill="#244a5a"/><rect x="349" y="76" width="25" height="43" rx="5" fill="#244a5a"/><rect x="145" y="146" width="25" height="43" rx="5" fill="#244a5a"/><rect x="349" y="146" width="25" height="43" rx="5" fill="#244a5a"/><path d="M145 78l25 34m179 0l25-34M145 188l25-34m179 0l25 34" stroke="#e7b536" stroke-width="4"/><text x="109" y="104">FL</text><text x="385" y="104">FR</text><text x="109" y="175">RL</text><text x="385" y="175">RR</text><path d="M261 63V42m0 0l-7 10m7-10l7 10M345 135h50m0 0l-10-7m10 7l-10 7" stroke="#145b70" stroke-width="2" fill="none"/><text x="277" y="52">前进 +vx</text><text x="402" y="140">右移 -vy</text><text x="25" y="228">黄色斜线表示滚子朝向；安装时先逐轮核对。</text></svg>`
+  };
+  const lessons=[
+    {id:'gpio',title:'1 · GPIO、时钟、中断与 PWM',subtitle:'第一周：让一根引脚成为可解释的输入或输出',diagram:'gpio',html:`
+      <h4>GPIO 输出：为什么选推挽？</h4><p>推挽由上、下两只管分别把引脚主动接向高电平或低电平，适合驱动数字输入、LED 等普通逻辑负载。开漏只能主动拉低，拉高要靠外部上拉，适合总线共享或电平转换。GPIO 只能提供有限电流；电机必须接驱动器，不能由单片机引脚直接供电。</p>
+      <h4>GPIO 输入：为什么要上拉、消抖？</h4><p>按键断开时若引脚悬空，环境噪声会让读数随机跳。内部上拉使默认值稳定为 1，按下接地读到 0。机械触点会在数毫秒内反复接触；消抖应在主循环/任务中按时间过滤。中断回调里只记事件与时间，不做长延时和串口阻塞发送。</p>
+      <h4>时钟与中断：要知道外设从哪里得到节拍</h4><p>HCLK 给内核，APB1/APB2 给外设；当 APB 分频不为 1 时，部分定时器时钟是 APB 时钟的 2 倍。TIM2/TIM3/TIM4 的实际 fTIM 必须从 CubeMX 时钟树核对。EXTI 把外部电平边沿变成中断请求，NVIC 决定是否响应和优先级；按键只需配置一路下降沿并开启相应 IRQ。</p>
+      <h4>PWM：为什么频率和占空比要分开算？</h4><p>定时器先以 fTIM/(PSC+1) 计数，再每 ARR+1 个计数构成一个周期，所以 fPWM=fTIM/[(PSC+1)(ARR+1)]。CCR 决定高电平持续的计数，占空比约为 CCR/(ARR+1)。呼吸灯用几百 Hz 到几 kHz 让闪烁不明显；TT 电机经 DRV8833 可先用 20 kHz 减少可闻噪声；舵机通常需要约 50 Hz、脉宽约 1–2 ms。具体舵机允许范围以型号资料和实测为准。</p>
+      <p class="why"><b>先想后配：</b>72 MHz 定时器时钟、PSC=71、ARR=999 时，频率是 1 kHz；改 CCR=250 时占空比约 25%。如果输出不对，先确认时钟树、通道引脚和是否调用 HAL_TIM_PWM_Start。</p>`,docs:[['[官方] RM0008：GPIO、EXTI、TIM',docs.rm],['[官方] STM32F103C8 数据手册：引脚',docs.ds]],video:'B站搜索：STM32F103 GPIO PWM 定时器 EXTI CubeMX 原理',check:'能手算 1 个 PWM 参数，并独立解释推挽、上拉与中断回调边界。'},
+    {id:'motor',title:'2 · 电机、舵机、FreeRTOS 与工程结构',subtitle:'第二周：让执行器稳定动作，并把代码放到对的地方',diagram:'pwm',html:`
+      <h4>TT 马达与 DRV8833：为什么必须用 H 桥？</h4><p>TT 马达是有刷直流电机，改变端子两端的电压方向就能反转。DRV8833 每块含两路 H 桥，一块管两台马达。每路输入 IN1/IN2：10 正转、01 反转、00 滑行、11 制动；PWM 加在运动方向的输入上，另一路保持 0。四台电机需要八路独立可换向 PWM：TIM2 四通道加 TIM3 四通道。每次改变方向先把两路占空比写 0，再设置新方向，避免瞬时互相顶住。</p>
+      <h4>频率、电源和舵机：同样叫 PWM，目标不同</h4><p>电机 PWM 的占空比改变平均端电压，开环下同一个占空比遇到不同负载会变速。舵机把脉宽解释成目标角度，MG995/SG90 不应直接拿 20 kHz 电机波形驱动；另用 TIM4 配约 50 Hz。电机与单片机共地，但马达电流不经 MCU 供电脚流过。两节电池的电压、降压模块输出电流、TT 马达额定电压要逐一核对；物资表没有给出这些模块的实际额定值，不能凭图片断言安全。</p>
+      <h4>FreeRTOS：为什么任务要让出 CPU？</h4><p>一个任务通常是无限循环。vTaskDelay(pdMS_TO_TICKS(20)) 让它阻塞约 20 ms，其他就绪任务才有机会运行；HAL_Delay 放在任务里会占用或影响调度，通常不用于周期任务。入门只需控制任务和状态输出任务；优先级相同即可，先稳定，再考虑更复杂的同步机制。F103C8 只有 20 KB SRAM，创建任务时要节制栈大小，并检查栈溢出。</p>
+      <h4>工程结构：为什么拆文件？</h4><p>CubeMX 生成的 main.c、tim.c、gpio.c 负责硬件初始化；bsp_motor.c 只知道 PWM 通道与驱动真值表；ps2.c 只负责协议和按键数据；chassis.c 只负责四轮目标值；app_tasks.c 负责周期调度。这样换手柄或电机时只改相应模块，不把协议细节和底盘公式塞在同一个循环里。</p>
+      <p class="why"><b>面试要能解释：</b>每块 DRV8833 驱动两台马达；机器人一共 4 台 TT 马达，故需要 2 块驱动板。比赛物资表给 4 块，是两台机器人或备用器材的量，单车不必全用。</p>`,docs:[['[官方] TI DRV8833：真值表与 PWM',docs.ti],['[官方] FreeRTOS 任务调度',docs.fr],['[官方] FreeRTOS vTaskDelay',docs.delay]],video:'B站搜索：DRV8833 STM32 电机 PWM FreeRTOS 创建任务 舵机',check:'能独立驱动一台电机正反转、一只舵机扫掠，并说清任务阻塞。'},
+    {id:'spi',title:'3 · SPI 与 PS2 无线手柄',subtitle:'第三周：把按键和摇杆读成可靠的数据',diagram:'spi',html:`
+      <h4>SPI 为什么要 CPOL 与 CPHA？</h4><p>主机产生时钟，发送与接收可以同时发生。CPOL 决定空闲时钟电平，CPHA 决定在哪条边沿采样；两端不一致，数据会错一位。还要确认先发高位还是低位、选通信号何时有效。PS2 游戏手柄接口是类似 SPI 的同步串行协议，不等同于电脑键盘的 PS/2 接口。常见手柄以 ATT 低有效、CLK 空闲高、低位先发；具体接收器时序应以随货资料与逻辑波形校验。</p>
+      <h4>两种实现各学什么？</h4><p>GPIO 模拟版手动设置 CMD、翻转 CLK、读取 DAT，最适合理解每一位从哪里来，也便于调时序。硬件 SPI2 版把时钟与移位交给外设，CPU 负担较低；示例参数为主机、全双工、8 位、LSB first、CPOL High、CPHA 2Edge、软件 NSS。ATT 仍由 PB12 普通 GPIO 控制。两种实现使用相同的报文解析函数；切换时在 CubeMX 中重配 PB13–PB15，不能两种模式同时占用同一组脚。</p>
+      <h4>怎样知道收到的不是噪声？</h4><p>轮询命令通常以 01 42 00 开始。返回帧检查标识字节 5A；模拟模式常见 ID 为 73，数字模式可能为 41。按键通常低电平表示按下，摇杆中心接近 128。若只得到数字模式，应按接收器资料执行配置模式、模拟模式与退出配置指令；无线接收器兼容性并不完全一致。超过约 200 ms 没有有效数据就停车，而不是沿用上次速度。</p>
+      <p class="why"><b>先验收通讯：</b>不接电机，先打印 ID、按键与四个轴；轻推摇杆，数值应连续变化。按键低有效、左右轴方向都要在装车前实测。</p>`,docs:[['[官方] RM0008：SPI 外设章节',docs.rm],['[图文] 开源 PS2X 协议实现参考',docs.ps2]],video:'B站搜索：STM32 PS2 手柄 SPI CPOL CPHA 无线接收器',check:'两种方式均能读出按钮和轴，能够说明 0x41 与 0x73 的区别。'},
+    {id:'wheel',title:'4 · 麦轮运动学基础解算',subtitle:'第三周：把车体运动拆成四个轮子的命令',diagram:'wheel',html:`
+      <h4>为什么四个轮子可以横移？</h4><p>麦克纳姆轮的斜滚子让接触点的受力有横向分量。四轮按 X 型正确安装时，调整各轮转向与转速，前后分量可相加或抵消，横向分量也可相加或抵消。图里 FL/FR/RL/RR 分别是左前、右前、左后、右后。O 型布局的横移符号关系不同，不能直接照抄 X 型公式。</p>
+      <h4>先约定坐标，再写公式</h4><p>约定车头为 +vx、车左为 +vy、逆时针为 +w，且各轮“正转”定义成驱动车向前。基础 X 型混控：FL=vx−vy−w；FR=vx+vy+w；RL=vx+vy−w；RR=vx−vy+w。这里把旋转量折算成同量纲的归一化控制值；若用 m/s 和 rad/s，需要用车体几何尺寸、轮半径把它们换成轮速。开环演示只做归一化比例分配。</p>
+      <h4>为什么要归一化和抬轮验证？</h4><p>输入叠加可能使轮命令绝对值大于 1。用 max(1,四轮最大绝对值) 同比例缩小，可保留运动方向与旋转比例。先抬起底盘，以低占空比依次测四轮“正转”，再测前进、左移、旋转；若轮安装方向或电机线反了，只改对应轮的方向标定，别随意改公式。开环无法保证直线完全笔直，能稳定完成六个基础动作即可。</p>
+      <p class="why"><b>口述检查：</b>左移时，公式得到 FL−、FR+、RL+、RR−。先手算、再让车轮悬空观察，最后落地低速验证。</p>`,docs:[['[官方] RoboMaster 麦轮混控教程', 'https://cdn-hz.robomaster.com/robomasters/public/document/RoboMasterM3508%E7%9B%B4%E6%B5%81%E6%97%A0%E5%88%B7%E5%87%8F%E9%80%9F%E7%94%B5%E6%9C%BA%E6%B7%B7%E6%8E%A7%E6%95%99%E7%A8%8BV1.0.pdf'],['[官方] TI DRV8833：各轮驱动',docs.ti]],video:'B站搜索：RoboMaster 麦克纳姆轮 X型 运动学解算 电控',check:'能手算六种运动的四轮符号，并说出轮子反转时的定位方法。'}
+  ];
+  const resources=[
+    ['[官方]','ST RM0008 参考手册','F103 GPIO、时钟、EXTI、USART、SPI、定时器的首要依据',docs.rm],
+    ['[官方]','STM32F103C8 数据手册','引脚复用、电气限制、容量与封装',docs.ds],
+    ['[官方]','ST STM32CubeMX','配置外设与生成初始化代码',docs.cubemx],
+    ['[官方]','ST STM32CubeIDE','编译、下载与调试工程',docs.cubeide],
+    ['[官方]','ST STM32CubeProgrammer','烧录和芯片连接诊断',docs.cubeprog],
+    ['[官方]','TI DRV8833 数据手册','双 H 桥真值表、PWM 和电压电流边界',docs.ti],
+    ['[官方]','FreeRTOS 任务文档','任务创建与调度',docs.fr],
+    ['[官方]','FreeRTOS vTaskDelay','任务阻塞时间单位',docs.delay],
+    ['[官方]','RoboMaster 开发板 C 型示例','以后迁移到战队常用硬件的参考；本项目主控仍为 F103',docs.rmb],
+    ['[官方]','DJI C620 使用说明','M3508 + C620 拓展：PWM 和 CAN 两种信号模式',docs.c620],
+    ['[官方]','DJI GM6020 产品资料','了解该电机支持 CAN 与 PWM 控制',docs.gm],
+    ['[图文]','PS2X 开源协议实现','参考模拟模式配置；无线接收器实物时序需核对',docs.ps2],
+    ['[视频]','电导不是韩导 · 不翻页速通手册','中文功能篇：GPIO、PWM、IRQ、TIMER、UART、SPI；按目录看对应章节',videos.series],
+    ['[视频]','电导不是韩导 · 单片机速成上手','中文速通项目；部分内容基于其他单片机，本站已转换为 F103 HAL',videos.intro],
+    ['[视频]','电导不是韩导 · 电机与舵机','中文模块篇；本站电机驱动采用 CRTC 清单中的 DRV8833',videos.servo],
+    ['[视频]','STM32CubeMX + FreeRTOS 入门','中文选集；优先看创建工程、任务和调度',videos.rtos],
+    ['[视频]','STM32 HAL + CubeIDE 的 SPI 教程','中文实操；PS2 接收器需再对照实际型号时序',videos.spi],
+    ['[视频]','STM32F103 游戏手柄实验','中文长选集，查找“第62讲 游戏手柄实验”',videos.ps2],
+    ['[视频]','麦克纳姆轮公式推演','中文讲解；作品仅需开环基础解算',videos.wheel]
+  ];
+  const task=(id,group,name,desc,hw,wire,cube,code,expected,debug,errors,rubric)=>({id,group,name,desc,hw,wire,cube,code,expected,debug,errors,rubric});
+  const tasks=[
+    task(1,'GPIO/PWM','LED 点亮与推挽输出','从 CubeMX 新建 F103C8 工程，点亮板载 LED，并解释高低电平。','F103C8T6 核心板、ST-Link、板载 LED', [['PC13','板载 LED（常见低电平点亮；先核对板卡）'],['SWDIO/SWCLK/GND','ST-Link 对应引脚']], 'SYS→Serial Wire；PC13→GPIO_Output、Push-Pull；GPIO 初始高电平。',`HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET); // 常见板载LED亮\nHAL_Delay(500);\nHAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);`, 'LED 每半秒切换一次。', ['先在 CubeProgrammer 确认芯片连接。','查板载 LED 是否低有效。','在调试器里看 PC13 输出寄存器。'],['把 LED 直接按高有效理解。','忘记共地或 SWD 线接反。'],'配置 30；运行 40；推挽与低有效解释 30。'),
+    task(2,'GPIO/PWM','按键轮询与上拉','让按键按下时 LED 状态变化，说明输入为何不能悬空。','F103C8T6、按钮、杜邦线、LED', [['PB10','按钮一端'],['GND','按钮另一端'],['PC13','板载 LED']], 'PB10→GPIO_Input、Pull-up；PC13→GPIO_Output。',`if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10)==GPIO_PIN_RESET) {\n  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);\n} else HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);`, '按下亮、松开灭；空闲输入稳定。', ['打印 PB10 电平。','短接 PB10 到 GND 验证。','慢按观察触点抖动。'],['未使能上拉导致随机触发。','按钮跨接脚看错。'],'接线 30；运行 40；上拉和消抖解释 30。'),
+    task(3,'GPIO/PWM','PWM 呼吸灯','用定时器占空比连续改变 LED 亮度，并手算频率。','F103C8T6、外接 LED、合适限流电阻（练习用，确认可用器材）', [['PA6 / TIM3_CH1','限流电阻→LED 阳极'],['LED 阴极','GND']], 'TIM3_CH1→PWM Generation；若 fTIM=72 MHz，PSC=71、ARR=999 得 1 kHz；PA6 复用推挽。',`HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_1);\nfor (uint16_t d=0; d<=999; d+=10) {\n  __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,d); HAL_Delay(10);\n}`, '亮度平滑变亮；补上反向循环则形成呼吸。', ['测量或推算 TIM3 实际时钟。','核对 PA6 是否为 CH1。','查 LED 极性与限流电阻。'],['只改 CCR 却未 Start。','PSC/ARR 计算忘记加 1。'],'频率计算 25；波形与代码 45；实物现象 30。'),
+    task(4,'GPIO/PWM','按键中断 EXTI','按钮触发 EXTI，回调只记录事件，任务或主循环做消抖。','F103C8T6、按钮、杜邦线', [['PB10 / EXTI10','按钮一端'],['GND','按钮另一端']], 'PB10→GPIO_EXTI10、Pull-up、Falling edge；NVIC 开 EXTI15_10_IRQn。',`volatile uint32_t key_tick;\nvoid HAL_GPIO_EXTI_Callback(uint16_t pin){\n  if(pin==GPIO_PIN_10) key_tick=HAL_GetTick();\n}\n// 主循环等待稳定约 20 ms 后再次读取 PB10。`, '每次有效按下只计一次数。', ['断点看回调是否进入。','检查 EXTI15_10 IRQ。','观察抖动导致的多次边沿。'],['在中断里 HAL_Delay。','忘记开 NVIC。'],'配置 35；稳定触发 35；解释中断边界 30。'),
+    task(5,'GPIO/PWM','USART 状态输出','定期输出按键值和计数；理解 UART 为异步通信。','F103C8T6、调试用 USB-TTL 适配器（不装车）或实验室串口设备', [['PA9 / USART1_TX','适配器 RX'],['PA10 / USART1_RX','适配器 TX（若需接收）'],['GND','适配器 GND']], 'USART1→Asynchronous，115200、8N1；PA9/PA10 默认复用。',`char msg[48];\nint n=snprintf(msg,sizeof msg,"key=%d\\r\\n",HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_10));\nHAL_UART_Transmit(&huart1,(uint8_t*)msg,n,100);`, '电脑串口终端显示按键状态。', ['核对波特率和共地。','若乱码先查时钟树。','用调试器看 n 是否合理。'],['TX 接 TX。','把 ST-Link V2 仿真器误当成自带串口。'],'接线 25；正常输出 45；异步帧解释 30。'),
+    task(6,'电机/RTOS','DRV8833 单电机开环正反转','一台 TT 马达先低速、再正反转；解释 H 桥的 10/01/00。','F103C8T6、TT 马达、DRV8833、合规 5V 电源', [['PA0 / TIM2_CH1','DRV8833 AIN1'],['PA1 / TIM2_CH2','DRV8833 AIN2'],['AOUT1/AOUT2','TT 马达两端'],['5V/GND','DRV8833 VM/GND，MCU 共地']], 'TIM2 CH1/CH2→PWM；fTIM=72 MHz 时 PSC=0、ARR=3599 得 20 kHz；两路初始 CCR=0。',`__HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2,0);\n__HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1,720); // 正转约20%\n// 反转前先把两路都设为0，再让CH2输出PWM。`, '马达正转、滑行停、反转；低速无明显发热。', ['核对 VM 供电与 nSLEEP 高电平。','只接一台，观察电调输出。','改占空比看速度变化。'],['把马达直接接 GPIO。','把驱动 VM 接到 MCU 3.3V。','切向时两个输入同时高。'],'真值表 30；安全接线 30；正反转 40。'),
+    task(7,'电机/RTOS','四电机独立 PWM','用 TIM2+TIM3 的八个通道控制四台 TT 马达。','F103C8T6、4 台 TT 马达、2 块 DRV8833、一套麦轮底盘', [['PA0/PA1','左前 IN1/IN2'],['PA2/PA3','右前 IN1/IN2'],['PA6/PA7','左后 IN1/IN2'],['PB0/PB1','右后 IN1/IN2']], 'TIM2 CH1–4、TIM3 CH1–4 均 PWM 20 kHz；无重映射；初始 CCR=0。',`Motor_Set(0,+0.20f); Motor_Set(1,+0.20f);\nMotor_Set(2,+0.20f); Motor_Set(3,+0.20f);\n// 每个Motor_Set只让方向对应的一路PWM非零。`, '四轮悬空时“正转”均对应车体前进。', ['逐台标记 FL/FR/RL/RR。','只驱动一台轮子时核对输出。','用低占空比确认正反向。'],['左右电机物理朝向不同却未标定。','TIM3 引脚被舵机占用。'],'引脚规划 25；四轮独立 45；符号标定 30。'),
+    task(8,'电机/RTOS','SG90/MG995 舵机扫掠','用独立 50 Hz PWM 控制舵机，并按实物限制角度。','F103C8T6、SG90 或 MG995、足额 5V 降压电源', [['PB6 / TIM4_CH1','舵机信号线'],['5V','舵机电源正极'],['GND','舵机电源负极和 MCU GND']], 'TIM4_CH1→PWM；fTIM=72 MHz 时 PSC=71、ARR=19999 得 50 Hz；初始脉宽约 1500 us。',`HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_1);\nfor(uint16_t us=1100;us<=1900;us+=20){\n  __HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_1,us); HAL_Delay(30);\n}`, '舵机在保守范围内平稳扫掠，不抖动重启。', ['先设中位 1500 us。','检查独立 5V 供电和共地。','缩小范围避开机械端点。'],['舵机直接从 MCU 3.3V 脚取电。','把 20 kHz 电机频率用于舵机。'],'频率脉宽 35；稳定扫掠 40；供电说明 25。'),
+    task(9,'电机/RTOS','FreeRTOS 双任务','一个任务周期闪灯，另一个任务输出心跳，观察任务阻塞。','F103C8T6、ST-Link、调试串口设备（可选）', [['PC13','板载 LED'],['PA9','USART1_TX（可选）']], 'Middleware→FreeRTOS；建 LedTask 和 StatusTask，优先级 Normal；确认 heap 与任务栈。',`void LedTask(void *arg){for(;;){HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_13);vTaskDelay(pdMS_TO_TICKS(500));}}\nvoid StatusTask(void *arg){for(;;){status_count++;vTaskDelay(pdMS_TO_TICKS(100));}}`, 'LED 每 500 ms 变化，状态计数持续增加。', ['检查 osKernelStart 或 vTaskStartScheduler 是否执行。','看两任务栈水位。','区分 100 tick 与 100 ms。'],['忘记 for(;;)。','用忙等阻塞其他任务。'],'创建 35；运行 35；调度原理 30。'),
+    task(10,'电机/RTOS','工程模块化重排','把驱动、协议、底盘和任务职责拆开，并保留 CubeMX 生成代码。','F103C8T6、现有单电机与舵机工程', [['PA0/PA1','沿用电机练习接线'],['PB6','沿用舵机练习接线']], 'CubeMX→Project Manager→保留用户代码；生成 gpio/tim/usart/freertos；用户文件放 Core/Inc、Core/Src。',`// motor.h: void Motor_Set(uint8_t id,float duty);\n// motor.c: 仅处理TIM通道和H桥真值表\n// app_tasks.c: 周期调用Motor_Set，不直接写CCR`, '改动电机管脚时只需更新 bsp 层映射。', ['检索跨模块是否仍直接操作 htim。','重新生成工程后确认用户文件未丢。','单独编译各模块查头文件依赖。'],['把所有代码都塞进 main.c。','修改自动生成区后被覆盖。'],'职责 35；构建 35；重生成后保持 30。'),
+    task(11,'SPI/PS2','SPI 时序与硬件收发','配置 SPI2，读懂 SCK/CMD/DAT 的边沿和位序；先不接电机。','F103C8T6、PS2 接收器、ST-Link', [['PB13 / SPI2_SCK','PS2 CLK'],['PB15 / SPI2_MOSI','PS2 CMD'],['PB14 / SPI2_MISO','PS2 DAT'],['PB12 / GPIO','PS2 ATT']], 'SPI2 Master、2 Lines Full Duplex、8 bits、LSB first、CPOL High、CPHA 2Edge、NSS Software；低速起步。',`uint8_t tx=0x01,rx=0;\nHAL_GPIO_WritePin(GPIOB,GPIO_PIN_12,GPIO_PIN_RESET);\nHAL_SPI_TransmitReceive(&hspi2,&tx,&rx,1,10);\nHAL_GPIO_WritePin(GPIOB,GPIO_PIN_12,GPIO_PIN_SET);`, '时钟空闲高；发送一字节同时收到一字节。', ['先量接收器逻辑电压是否与 3.3V 相容。','检查 CLK/ATT 不要接反。','调慢分频观察返回。'],['按 MSB first 配置。','把电脑 PS/2 键盘口当作游戏手柄协议。'],'时序解释 40；配置 30；读回 30。'),
+    task(12,'SPI/PS2','GPIO 模拟读取 PS2 按键','用 GPIO 翻转 CLK，按低位先发收一个字节，再读完整帧。','F103C8T6、PS2 无线手柄和接收器', [['PB13 / GPIO输出','PS2 CLK'],['PB15 / GPIO输出','PS2 CMD'],['PB14 / GPIO输入','PS2 DAT'],['PB12 / GPIO输出','PS2 ATT']], 'PB12/13/15→GPIO_Output；PB14→GPIO_Input；TIM1 配 1 MHz 作为微秒延时。',`for(int i=0;i<8;i++){\n  write_cmd((tx>>i)&1); write_clk(0); delay_us(3);\n  write_clk(1); if(read_dat()) rx|=(1u<<i); delay_us(3);\n}`, '按键字节变化，未按下常见为 0xFF。', ['先确认 01 42 00 轮询头。','检查返回标识 0x5A。','把半周期适当加长。'],['忘记 ATT 拉低。','在错误边沿读 DAT。'],'位序与代码 40；读帧 35；调试 25。'),
+    task(13,'SPI/PS2','硬件 SPI 读取摇杆','用 SPI2 轮询完整 PS2 帧，并配置模拟模式。','F103C8T6、PS2 无线手柄和接收器', [['PB13 / SPI2_SCK','PS2 CLK'],['PB15 / SPI2_MOSI','PS2 CMD'],['PB14 / SPI2_MISO','PS2 DAT'],['PB12 / GPIO','PS2 ATT']], 'SPI2 Master、8bit、LSB、CPOL=1、CPHA=1；软件 NSS；分频从 128/256 起试。',`uint8_t tx[9]={0x01,0x42,0x00,0,0,0,0,0,0},rx[9]={0};\nHAL_GPIO_WritePin(GPIOB,GPIO_PIN_12,GPIO_PIN_RESET);\nHAL_SPI_TransmitReceive(&hspi2,tx,rx,9,20);\nHAL_GPIO_WritePin(GPIOB,GPIO_PIN_12,GPIO_PIN_SET);`, '模拟模式帧 ID 常见 0x73；摇杆四轴围绕 128 变化。', ['先读 rx[1] 与 rx[2]。','若 0x41，按接收器资料进入模拟模式。','无线对码后再读。'],['未做模式配置却期待摇杆数据。','忽略模块要求的字节间隔。'],'模式识别 35；摇杆读取 40；故障定位 25。'),
+    task(14,'麦轮解算','X 型麦轮纸上解算','给前进、左移和旋转输入，先手算四轮符号和归一化。','纸笔或本站交互计算器；不需通电', [['FL/FR','前方两轮'],['RL/RR','后方两轮'],['+vx/+vy/+w','前/左/逆时针']], '纯算法任务；沿用前面定时器配置，无新增 CubeMX 外设。',`fl=vx-vy-w; fr=vx+vy+w;\nrl=vx+vy-w; rr=vx-vy+w;\nscale=max(1,abs(fl),abs(fr),abs(rl),abs(rr));`, '输入左移 vy=+1 时四轮为 −、+、+、−。', ['代入纯前进值检查四轮同号。','代入纯旋转检查左右异号。','用最大绝对值归一化。'],['坐标正方向先后不一致。','没确认 X/O 滚子布局。'],'坐标 25；公式 45；归一化 30。'),
+    task(15,'麦轮解算','六方向小车低速联调','把 PS2 输入、X 型解算和四轮 PWM 连起来，抬轮与落地逐步验收。','F103C8T6、4 TT、2 DRV8833、4 麦轮、PS2、底盘、电池和降压模块', [['PA0–PA3','前两轮 4 个 H 桥输入'],['PA6/PA7/PB0/PB1','后两轮 4 个 H 桥输入'],['PB12–PB15','PS2 ATT/CLK/DAT/CMD'],['PA9/PA10','串口状态与接收中断']], 'TIM2+TIM3 各四路 PWM 20 kHz；SPI2 或 GPIO 模拟二选一；USART1 收发及中断；FreeRTOS 控制任务 20 ms。',`if(PS2_Poll(&pad)){\n  Mecanum_Mix(vx,vy,w,out);\n  for(int i=0;i<4;i++) Motor_Set(i,out[i]*0.25f);\n} else Motor_StopAll();`, '前后左右、原地左右转稳定；断联停车；串口输出状态。', ['先逐轮检查编号与方向。','悬空完成六动作再落地。','逐步提高占空比，检查电源跌落。'],['一次全速落地。','接收器断联仍保留上次速度。','方向错误时乱改公式。'],'接线与供电 25；六动作 40；失联保护 20；口述原理 15。')
+  ];
+  const q=(id,module,type,prompt,options,answer,explain,diagram=null)=>({id,module,type,prompt,options,answer,explain,diagram});
+  const questions=[
+    q(1,'GPIO/PWM','diagram','图中 GPIO 推挽输出相比开漏输出的关键差别是什么？',['能主动拉高和拉低','只能主动拉低','只能用于输入','可直接驱动马达'],0,'推挽上下管分别提供高、低电平；开漏拉高需要上拉。','gpio'),
+    q(2,'GPIO/PWM','diagram','图中 PWM 的 ARR=999、CCR=250，占空比约是多少？',['10%','25%','50%','75%'],1,'周期计数为 1000，比较值为 250，约 25%。','pwm'),
+    q(3,'SPI/PS2','diagram','SPI 时序图中若两端采样边沿不一致，最常见结果是什么？',['数据错位或错误','电机反转','占空比翻倍','Flash 擦除'],0,'CPOL/CPHA 决定时钟空闲与采样边沿，配错会读错位。','spi'),
+    q(4,'麦轮解算','diagram','图示 X 型车体要求纯左移（+vy）时，FL/FR/RL/RR 的符号是？',['+ + + +','− + + −','− − + +','+ − + −'],1,'把 vx=w=0、vy=+1 代入四轮式得到 −、+、+、−。','wheel'),
+    q(5,'GPIO/PWM','choice','按键一端接 GND，另一端接 PB10 时，稳定的默认高电平最直接靠什么？',['内部上拉','推挽输出高','关闭 GPIO 时钟','提高波特率'],0,'输入上拉在开路时定义高电平。'),
+    q(6,'GPIO/PWM','choice','按键中断回调里最适合做哪件事？',['只记录事件并尽快返回','等待 500 ms 消抖','打印长日志','执行完整小车控制'],0,'中断回调保持短，耗时操作留在任务或主循环。'),
+    q(7,'GPIO/PWM','choice','fTIM=72 MHz，PSC=71、ARR=999，PWM 频率是多少？',['100 Hz','1 kHz','10 kHz','72 kHz'],1,'72 MHz / 72 / 1000 = 1 kHz。'),
+    q(8,'GPIO/PWM','choice','若 TIM2 所在 APB1 分频不是 1，定时器时钟常见关系是？',['等于 APB1 频率一半','等于 APB1 频率两倍','固定 1 MHz','等于串口波特率'],1,'F103 常见时钟树中 APB 分频后，定时器时钟可为该 APB 频率的 2 倍；仍须在 CubeMX 核对。'),
+    q(9,'GPIO/PWM','choice','PWM 计数周期不变，只增加 CCR，通常改变什么？',['高电平占比','引脚复用编号','系统时钟源','串口停止位'],0,'CCR 决定比较点，高电平占比随之变化。'),
+    q(10,'GPIO/PWM','choice','USART1 常用的默认 TX 引脚是？',['PA9','PA13','PB14','PC13'],0,'F103C8 默认 USART1_TX 可在 PA9，实际复用以数据手册和 CubeMX 为准。'),
+    q(11,'GPIO/PWM','choice','使用 ST-Link SWD 下载时应保留哪一对调试信号？',['PA13/PA14','PA0/PA1','PB6/PB7','PB13/PB14'],0,'PA13/PA14 分别为 SWDIO/SWCLK。'),
+    q(12,'GPIO/PWM','choice','机械按键“按一次计多次”最可能是？',['触点抖动','UART 波特率太高','定时器 ARR 太大','SPI 位序错误'],0,'触点机械弹跳产生多个边沿。'),
+    q(13,'电机/RTOS','choice','一块 DRV8833 芯片能独立控制多少台有刷直流电机？',['1 台','2 台','4 台','8 台'],1,'DRV8833 有两个 H 桥，可分别驱动两台有刷直流电机。'),
+    q(14,'电机/RTOS','choice','DRV8833 的 IN1/IN2=0/0 时通常是哪种状态？',['滑行','正转','反转','制动'],0,'0/0 为输出高阻、滑行。'),
+    q(15,'电机/RTOS','choice','DRV8833 正转且使用 fast decay PWM，应如何给输入？',['IN1=PWM，IN2=0','IN1=0，IN2=0','IN1=1，IN2=1','IN1=0，IN2=PWM'],0,'TI 真值表给出 PWM/0 为正向 PWM。'),
+    q(16,'电机/RTOS','choice','为什么不能把 TT 马达直接接 F103 GPIO？',['GPIO 供流能力不足且缺少换向驱动','因为 SPI 不工作','因为 GPIO 只能输出模拟量','因为 FreeRTOS 禁止电机'],0,'电机需独立供电和 H 桥换向，GPIO 只提供逻辑控制。'),
+    q(17,'电机/RTOS','choice','给普通舵机示例产生约 20 ms 周期，应设频率约多少？',['20 kHz','1 kHz','50 Hz','1 Hz'],2,'20 ms 的倒数为 50 Hz，仍须按舵机型号核对。'),
+    q(18,'电机/RTOS','choice','在 1 MHz 定时器计数下，1500 us 脉宽对应 CCR 约多少？',['15','150','1500','15000'],2,'1 MHz 每计数 1 us，1500 us 对应 1500 计数。'),
+    q(19,'电机/RTOS','choice','FreeRTOS 中 vTaskDelay(pdMS_TO_TICKS(20)) 的直接效果是？',['调用任务阻塞约 20 ms','所有任务都停 20 ms','重启 MCU','只暂停中断'],0,'调用它的任务进入阻塞态，调度器可运行其他就绪任务。'),
+    q(20,'电机/RTOS','choice','F103C8 的 SRAM 资源有限，创建多个任务时尤其要检查什么？',['任务栈和堆占用','OLED 分辨率','电机齿轮比','网页字体'],0,'任务栈和动态对象消耗 SRAM。'),
+    q(21,'电机/RTOS','choice','CubeMX 重新生成工程后，用户驱动代码适合放哪里？',['独立用户源文件或 USER CODE 区','任意自动生成区域','只放启动文件','编译器安装目录'],0,'独立模块与 USER CODE 区可减少代码被覆盖的风险。'),
+    q(22,'电机/RTOS','choice','四台 TT 马达、每块 DRV8833 驱动两台，单车至少用几块？',['1','2','3','4'],1,'4÷2=2 块。'),
+    q(23,'电机/RTOS','choice','关于电机与 MCU 供电，哪项正确？',['电源负极共地，电机电流走驱动器供电回路','电机从 MCU 3.3V 脚供电','不需要共地','舵机信号线可代替电源'],0,'逻辑控制必须有共同电位基准，电机供电由独立驱动回路承担。'),
+    q(24,'SPI/PS2','choice','SPI 的 CPOL 用来决定什么？',['时钟空闲电平','电机转向','任务优先级','接收器供电电流'],0,'CPOL 指定 SCK 空闲时电平。'),
+    q(25,'SPI/PS2','choice','SPI 的 CPHA 用来决定什么？',['第几条边沿采样','电机 H 桥数量','PWM 频率','UART 校验位'],0,'CPHA 指定数据采样时机。'),
+    q(26,'SPI/PS2','choice','PS2 游戏手柄协议与电脑键盘的 PS/2 接口关系是？',['名称相似但协议不同','完全相同','只差供电电压','都用 UART'],0,'本课程 PS2 指游戏手柄的同步串行协议。'),
+    q(27,'SPI/PS2','choice','PS2 常见模拟模式返回 ID 是？',['0x73','0x00','0xAA','0xFF'],0,'开源协议实现中常见 0x73 表示模拟模式；兼容接收器需实测。'),
+    q(28,'SPI/PS2','choice','PS2 常见轮询报文开头是？',['01 42 00','AA 55 AA','FF 00 FF','00 00 00'],0,'PS2X 开源实现以 01 42 00 读取数据。'),
+    q(29,'SPI/PS2','choice','PS2 接收器持续没有有效数据时，小车应如何处理？',['四轮置零','保持上次速度','加大 PWM','立即反转'],0,'失联停车是本作品的必需保护策略。'),
+    q(30,'麦轮解算','choice','纯前进 vx>0、vy=w=0 时，四轮目标应该怎样？',['同号','左侧反号','前轮反号','全部为零'],0,'代入 X 型基础式后四轮同为 vx。'),
+    q(31,'麦轮解算','choice','四轮目标绝对值最大达到 1.6，归一化时应如何处理？',['四轮全部除以 1.6','只限制最大那一轮','全部乘 1.6','改变车体坐标轴'],0,'同倍率缩小可以保留混合后的比例。'),
+    q(32,'麦轮解算','choice','开环控制直线偏移的主要原因是？',['负载、摩擦和电机差异','公式一定错误','SPI 不能全双工','FreeRTOS 不能延时'],0,'没有轮速反馈时，同占空比不保证同转速。'),
+    q(33,'麦轮解算','choice','X 型与 O 型麦轮布局改变时最应先做什么？',['核对滚子朝向及横移符号','直接提高占空比','删除死区','关掉定时器'],0,'布局不同影响横向分量符号，应先核对轮子安装与坐标约定。'),
+    q(34,'GPIO/PWM','tf','GPIO 输入不加上拉或下拉、按键又断开时，读数可能不稳定。',['正确','错误'],0,'悬空输入易受噪声影响。'),
+    q(35,'GPIO/PWM','tf','在 EXTI 回调里执行很长时间的 HAL_Delay 是好的消抖方法。',['正确','错误'],1,'长时间占用中断会影响系统响应；应在任务/主循环消抖。'),
+    q(36,'GPIO/PWM','tf','PWM 的周期由 PSC 和 ARR 决定，CCR 主要决定占空比。',['正确','错误'],0,'定时器计数链与比较寄存器各司其职。'),
+    q(37,'电机/RTOS','tf','DRV8833 的两个输入同时为 1 时是制动，而不是滑行。',['正确','错误'],0,'TI 真值表中 1/1 为 brake/slow decay。'),
+    q(38,'电机/RTOS','tf','同样 30% 占空比的开环驱动能保证四台 TT 马达速度严格相同。',['正确','错误'],1,'负载、摩擦、电机差异会造成速度不同。'),
+    q(39,'电机/RTOS','tf','一个 FreeRTOS 任务调用 vTaskDelay 后，其他就绪任务仍可运行。',['正确','错误'],0,'vTaskDelay 阻塞的是调用任务。'),
+    q(40,'电机/RTOS','tf','MG995 的供电可以直接由 STM32 3.3V GPIO 引脚提供。',['正确','错误'],1,'GPIO 只能给控制信号，舵机需合适的独立供电。'),
+    q(41,'SPI/PS2','tf','硬件 SPI 接收时，PS2 的 ATT 仍需由普通 GPIO 控制。',['正确','错误'],0,'示例采用软件 NSS，PB12 单独拉低/拉高 ATT。'),
+    q(42,'SPI/PS2','tf','PS2 手柄的按键常见为低有效，解析时应检查返回值变化。',['正确','错误'],0,'开源实现的按钮位按低有效解释，接收器需实测。'),
+    q(43,'SPI/PS2','tf','GPIO 模拟和硬件 SPI 可以同时占用 PB13–PB15 的同一套配置。',['正确','错误'],1,'切换实现必须重新配置这些引脚。'),
+    q(44,'麦轮解算','tf','X 型公式中的 vx、vy、w 必须先约定方向，否则轮速正负没有统一意义。',['正确','错误'],0,'同一公式依赖固定坐标与轮子正方向。'),
+    q(45,'麦轮解算','tf','四轮最大值大于 1 时，只裁剪最大那只轮就能完全保留原运动比例。',['正确','错误'],1,'单独裁剪会改变四轮比例，应统一归一化。'),
+    q(46,'GPIO/PWM','short','解释推挽输出和开漏输出各适合什么场景。',null,'推挽主动拉高/拉低，适合普通数字输出；开漏只能主动拉低，依赖上拉，适合共享总线或电平转换。','参考 RM0008 GPIO 章节；说明上下管、上拉和应用场景。'),
+    q(47,'GPIO/PWM','short','为什么按键要上拉与消抖？',null,'上拉给断开状态确定电平；机械触点抖动会产生多个边沿，需在主循环/任务中按时间过滤。','参考 RM0008 GPIO/EXTI 章节。'),
+    q(48,'GPIO/PWM','short','写出 PWM 频率与占空比的基础计算式。',null,'fPWM=fTIM/[(PSC+1)(ARR+1)]；占空比约 CCR/(ARR+1)。','参考 RM0008 定时器章节；注意 APB 定时器时钟。'),
+    q(49,'电机/RTOS','short','DRV8833 如何实现一台 TT 马达正转、反转、滑行？',null,'正转 IN1=PWM/IN2=0；反转 IN1=0/IN2=PWM；滑行两输入为 0。','参考 TI DRV8833 真值表。'),
+    q(50,'电机/RTOS','short','FreeRTOS 的 vTaskDelay 为什么比任务内忙等适合周期练习？',null,'调用任务进入阻塞态，其他就绪任务可运行；忙等持续占用 CPU。','参考 FreeRTOS vTaskDelay 与任务调度文档。'),
+    q(51,'SPI/PS2','short','说明 CPOL、CPHA、位序、ATT 在 PS2 收发中的作用。',null,'CPOL 空闲电平；CPHA 采样边沿；常见 PS2 低位先发；ATT 低有效选中接收器。','参考 RM0008 SPI 与 PS2X 开源实现。'),
+    q(52,'SPI/PS2','short','收到 0x41、摇杆没有变化，你会按什么顺序排查？',null,'确认无线对码和供电，检查 0x5A、位序与边沿；按接收器资料进入模拟模式，确认 0x73 后读轴。','参考 PS2X 开源实现；实际模块时序以随货资料为准。'),
+    q(53,'麦轮解算','short','给定 vx=0、vy=1、w=0，写出 X 型麦轮四轮目标。',null,'FL=-1、FR=+1、RL=+1、RR=-1；实际电机极性须逐轮标定。','由 X 型混控公式代入。'),
+    q(54,'麦轮解算','short','为什么四轮目标要一起归一化？',null,'保留四轮相对比例，使平移和旋转方向不因单轮裁剪而改变，同时限制幅值。','由四轮线性混控公式推得。'),
+    q(55,'麦轮解算','short','面试演示中如何证明小车失联后会停车？',null,'抬轮演示；正常轮询时运动，断开接收器或手柄后等待超时，控制任务将四轮 PWM 置零并输出失联状态。','本作品的故障保护验收要求。')
+  ];
+  const sourceByModule={'GPIO/PWM':'RM0008 / STM32F103C8 数据手册','电机/RTOS':'TI DRV8833 / FreeRTOS 官方文档','SPI/PS2':'RM0008 SPI / PS2X 开源实现','麦轮解算':'RoboMaster 麦轮混控资料与本站公式推导'};
+  const projectCodes={
+    motor:`/* Core/Src/motor.c：依赖 CubeMX 生成的 tim.h */
+#include "motor.h"
+#include "tim.h"
+
+typedef struct { TIM_HandleTypeDef *tim; uint32_t a,b; } MotorPort;
+static const MotorPort port[4] = {
+  {&htim2,TIM_CHANNEL_1,TIM_CHANNEL_2}, /* FL: PA0/PA1 */
+  {&htim2,TIM_CHANNEL_3,TIM_CHANNEL_4}, /* FR: PA2/PA3 */
+  {&htim3,TIM_CHANNEL_1,TIM_CHANNEL_2}, /* RL: PA6/PA7 */
+  {&htim3,TIM_CHANNEL_3,TIM_CHANNEL_4}  /* RR: PB0/PB1 */
+};
+/* 悬空逐轮测试后再调整正转极性。 */
+static const int8_t sign[4] = {+1,+1,+1,+1};
+
+void Motor_Init(void) {
+  for (int i=0;i<4;i++) {
+    HAL_TIM_PWM_Start(port[i].tim,port[i].a);
+    HAL_TIM_PWM_Start(port[i].tim,port[i].b);
+    __HAL_TIM_SET_COMPARE(port[i].tim,port[i].a,0);
+    __HAL_TIM_SET_COMPARE(port[i].tim,port[i].b,0);
+  }
+}
+void Motor_Set(uint8_t id,float duty) {
+  if (id>=4) return;
+  if (duty>1) duty=1;
+  if (duty< -1) duty= -1;
+  duty *= sign[id];
+  uint32_t count=(uint32_t)((duty<0 ? -duty : duty)*3599.0f);
+  /* 先关两路，之后只开所需方向的一路。 */
+  __HAL_TIM_SET_COMPARE(port[id].tim,port[id].a,0);
+  __HAL_TIM_SET_COMPARE(port[id].tim,port[id].b,0);
+  if (duty>0) __HAL_TIM_SET_COMPARE(port[id].tim,port[id].a,count);
+  if (duty<0) __HAL_TIM_SET_COMPARE(port[id].tim,port[id].b,count);
+}
+void Motor_StopAll(void) { for(int i=0;i<4;i++) Motor_Set(i,0); }`,
+    motorHeader:`/* Core/Inc/motor.h */
+#pragma once
+#include <stdint.h>
+void Motor_Init(void);
+void Motor_Set(uint8_t id,float duty);
+void Motor_StopAll(void);`,
+    mecanum:`/* Core/Src/mecanum.c：vx前、vy左、w逆时针；轮正转定义为前进 */
+#include "mecanum.h"
+void Mecanum_Mix(float vx,float vy,float w,float out[4]) {
+  out[0]=vx-vy-w; /* FL */
+  out[1]=vx+vy+w; /* FR */
+  out[2]=vx+vy-w; /* RL */
+  out[3]=vx-vy+w; /* RR */
+  float scale=1.0f;
+  for(int i=0;i<4;i++) {
+    float a=out[i]<0 ? -out[i] : out[i];
+    if(a>scale) scale=a;
+  }
+  for(int i=0;i<4;i++) out[i]/=scale;
+}`,
+    mecanumHeader:`/* Core/Inc/mecanum.h */
+#pragma once
+void Mecanum_Mix(float vx,float vy,float w,float out[4]);`,
+    ps2:`/* Core/Src/ps2.c：选择一种实现，并同步调整 CubeMX 引脚配置。 */
+#include "ps2.h"
+#include "main.h"
+#define PS2_USE_SOFT 0 /* 0=SPI2；1=GPIO模拟 */
+#if PS2_USE_SOFT
+#include "tim.h"
+#else
+#include "spi.h"
+#endif
+
+#if PS2_USE_SOFT
+static void delay_us(uint16_t us) { /* 仅模拟版使用；TIM1 计数频率 1 MHz */
+  uint16_t t=(uint16_t)__HAL_TIM_GET_COUNTER(&htim1);
+  while((uint16_t)(__HAL_TIM_GET_COUNTER(&htim1)-t)<us) {}
+}
+#endif
+static uint8_t xfer(uint8_t tx) {
+#if PS2_USE_SOFT
+  uint8_t rx=0;
+  for(uint8_t i=0;i<8;i++) {
+    HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,(tx&(1u<<i))?GPIO_PIN_SET:GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,GPIO_PIN_RESET);
+    delay_us(3);
+    HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,GPIO_PIN_SET);
+    if(HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_14)==GPIO_PIN_SET) rx|=1u<<i;
+    delay_us(3);
+  }
+  return rx;
+#else
+  uint8_t rx=0;
+  if(HAL_SPI_TransmitReceive(&hspi2,&tx,&rx,1,10)!=HAL_OK) return 0;
+  return rx;
+#endif
+}
+static void frame(const uint8_t *tx,uint8_t *rx,uint8_t n) {
+  HAL_GPIO_WritePin(GPIOB,GPIO_PIN_12,GPIO_PIN_RESET); /* ATT */
+#if PS2_USE_SOFT
+  delay_us(10);
+#endif
+  for(uint8_t i=0;i<n;i++) rx[i]=xfer(tx[i]);
+  HAL_GPIO_WritePin(GPIOB,GPIO_PIN_12,GPIO_PIN_SET);
+}
+void PS2_Init(void) {
+  static const uint8_t enter[9]={1,0x43,0,1,0,0,0,0,0};
+  static const uint8_t analog[9]={1,0x44,0,1,3,0,0,0,0};
+  static const uint8_t exit[9]={1,0x43,0,0,0x5A,0x5A,0x5A,0x5A,0x5A};
+  uint8_t rx[9];
+#if PS2_USE_SOFT
+  HAL_TIM_Base_Start(&htim1);
+  HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,GPIO_PIN_SET); /* CLK 空闲高 */
+  HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,GPIO_PIN_SET);
+#endif
+  HAL_GPIO_WritePin(GPIOB,GPIO_PIN_12,GPIO_PIN_SET);
+  HAL_Delay(100); /* 等待无线接收器上电/对码 */
+  frame(enter,rx,9); HAL_Delay(20);
+  frame(analog,rx,9); HAL_Delay(20);
+  frame(exit,rx,9); HAL_Delay(20);
+}
+bool PS2_Poll(Pad *pad) {
+  static const uint8_t cmd[9]={1,0x42,0,0,0,0,0,0,0};
+  uint8_t rx[9];
+  frame(cmd,rx,9);
+  if(rx[1]!=0x73 || rx[2]!=0x5A) return false;
+  pad->buttons=(uint16_t)rx[3] | ((uint16_t)rx[4]<<8);
+  pad->rx=rx[5]; pad->ry=rx[6]; pad->lx=rx[7]; pad->ly=rx[8];
+  return true;
+}`,
+    ps2Header:`/* Core/Inc/ps2.h */
+#pragma once
+#include <stdint.h>
+#include <stdbool.h>
+typedef struct { uint16_t buttons; uint8_t rx,ry,lx,ly; } Pad;
+void PS2_Init(void);
+bool PS2_Poll(Pad *pad);`,
+    app:`/* Core/Src/app_tasks.c：在 MX_FREERTOS_Init 的 USER CODE 区调用 App_CreateTasks。 */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "main.h"
+#include "usart.h"
+#include "motor.h"
+#include "mecanum.h"
+#include "ps2.h"
+#include <stdio.h>
+
+static volatile int16_t shown_x,shown_y,shown_w;
+static volatile uint8_t link_ok,uart_stop;
+static uint8_t rx_byte;
+void App_StartUartRx(void) { HAL_UART_Receive_IT(&huart1,&rx_byte,1); }
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+  if(huart->Instance==USART1) {
+    if(rx_byte=='s') uart_stop=1; /* 串口紧急停车 */
+    if(rx_byte=='r') uart_stop=0; /* 手动解除 */
+    HAL_UART_Receive_IT(&huart1,&rx_byte,1);
+  }
+}
+static int16_t dz(int16_t v) { return (v>-12 && v<12) ? 0 : v; }
+static void ControlTask(void *arg) {
+  Pad pad; float wheel[4];
+  for(;;) {
+    if(PS2_Poll(&pad)) {
+      int16_t x=dz(128-(int16_t)pad.ly);
+      int16_t y=dz(128-(int16_t)pad.lx);
+      int16_t w=dz(128-(int16_t)pad.rx);
+      /* 十字键和 L1/R1：摇杆之外的按键控制。 */
+      if(!(pad.buttons&(1u<<4))) x=127;  /* UP */
+      if(!(pad.buttons&(1u<<6))) x=-127; /* DOWN */
+      if(!(pad.buttons&(1u<<7))) y=127;  /* LEFT */
+      if(!(pad.buttons&(1u<<5))) y=-127; /* RIGHT */
+      if(!(pad.buttons&(1u<<10))) w=127; /* L1 */
+      if(!(pad.buttons&(1u<<11))) w=-127;/* R1 */
+      if(!(pad.buttons&(1u<<3)) || uart_stop) x=y=w=0; /* 急停 */
+      Mecanum_Mix(x/127.0f,y/127.0f,w/127.0f,wheel);
+      for(int i=0;i<4;i++) Motor_Set(i,wheel[i]*0.30f);
+      taskENTER_CRITICAL();
+      shown_x=x; shown_y=y; shown_w=w; link_ok=1;
+      taskEXIT_CRITICAL();
+    } else { /* 无效一帧立即停，比 200 ms 超时更保守 */
+      Motor_StopAll();
+      taskENTER_CRITICAL();
+      shown_x=shown_y=shown_w=0; link_ok=0;
+      taskEXIT_CRITICAL();
+    }
+    vTaskDelay(pdMS_TO_TICKS(20));
+  }
+}
+static void StatusTask(void *arg) {
+  char line[80]; int16_t x,y,w; uint8_t ok;
+  for(;;) {
+    taskENTER_CRITICAL();
+    x=shown_x; y=shown_y; w=shown_w; ok=link_ok;
+    taskEXIT_CRITICAL();
+    int n=snprintf(line,sizeof line,"PS2:%s vx=%d vy=%d w=%d\\r\\n",ok?"OK":"LOST",x,y,w);
+    if(n>0 && n<(int)sizeof line) HAL_UART_Transmit(&huart1,(uint8_t*)line,n,20);
+    vTaskDelay(pdMS_TO_TICKS(100));
+  }
+}
+void App_CreateTasks(void) {
+  if(xTaskCreate(ControlTask,"ctrl",384,NULL,tskIDLE_PRIORITY+2,NULL)!=pdPASS) Error_Handler();
+  if(xTaskCreate(StatusTask,"status",256,NULL,tskIDLE_PRIORITY+1,NULL)!=pdPASS) Error_Handler();
+}`,
+    appHeader:`/* Core/Inc/app_tasks.h */
+#pragma once
+void App_StartUartRx(void);
+void App_CreateTasks(void);`,
+    integration:`/* Core/Src/main.c 顶部 USER CODE Includes 区 */
+#include "motor.h"
+#include "ps2.h"
+#include "app_tasks.h"
+
+/* Core/Src/main.c 的 USER CODE BEGIN 2：所有 MX_*_Init 完成后 */
+Motor_Init();
+PS2_Init();
+App_StartUartRx();
+
+/* Core/Src/freertos.c 的 USER CODE BEGIN Includes 区 */
+#include "app_tasks.h"
+
+/* Core/Src/freertos.c 中 MX_FREERTOS_Init 的 USER CODE 区 */
+App_CreateTasks();
+/* 保留 CubeMX 生成的 HAL_Init、时钟配置、外设初始化和 osKernelStart。 */`
+  };
+  const projectWiring=[
+    ['两节 18650 电池盒','两块 5V 降压模块输入','先确认电池盒串并联、极性和输入额定值；不直接给 TT 马达上电'],
+    ['降压模块 A 的 5V/GND','两块 DRV8833 的 VM/GND','核对模块连续输出电流足以带动四台马达'],
+    ['降压模块 B 的 5V/GND','F103 板 5V/GND','PS2 供电按接收器铭牌确定；逻辑与驱动必须共地'],
+    ['PA0 / PA1（TIM2_CH1/2）','驱动 1 AIN1/AIN2','左前 FL，输出 AOUT1/2 接左前 TT'],
+    ['PA2 / PA3（TIM2_CH3/4）','驱动 1 BIN1/BIN2','右前 FR，输出 BOUT1/2 接右前 TT'],
+    ['PA6 / PA7（TIM3_CH1/2）','驱动 2 AIN1/AIN2','左后 RL，输出 AOUT1/2 接左后 TT'],
+    ['PB0 / PB1（TIM3_CH3/4）','驱动 2 BIN1/BIN2','右后 RR，输出 BOUT1/2 接右后 TT'],
+    ['驱动 1/2 nSLEEP','3.3V（如模块引出此脚）','保持高电平启用；具体模块标注优先'],
+    ['PB12 / PB13 / PB14 / PB15','PS2 ATT / CLK / DAT / CMD','GPIO 模拟或 SPI2 二选一；手柄 GND 与 MCU 共地'],
+    ['PA9/PA10（USART1 TX/RX）','调试串口 RX/TX（临时连接）','串口接收器不列在官方整车物料；可用实验室临时工具读状态并发送 s/r 急停命令'],
+    ['PB6（TIM4_CH1）','SG90/MG995 信号线（独立练习）','舵机不必安装在麦轮小车上']
+  ];
+  const projectHtml=`<div class="grid"><div class="card"><h3>作品验收</h3><p>PS2 左摇杆控制前后与横移，右摇杆控制旋转；十字键与 L1/R1 可做同样动作；START 作为急停。串口每 100 ms 输出连接状态与三轴命令；串口收到 s 立即停车，收到 r 解除。无效帧立即停轮。</p></div><div class="card"><h3>知识闭环</h3><p>GPIO 配方向与 ATT；PWM 驱动四个 H 桥；USART 接收中断和状态输出；SPI 或 GPIO 模拟读取 PS2；FreeRTOS 周期任务；X 型麦轮公式。EXTI 另在按键任务中练习，整车用 UART 中断完成中断知识点。</p></div><div class="card"><h3>能跑通即可</h3><p>先在轮悬空时完成六动作，再在地面低速演示。只做开环比例混控，不增加 PID、编码器闭环、复杂 RTOS。GM6020/M3508 是以后迁移内容，物资表里的 TT+DRV8833 才是本作品执行链。</p></div></div>
+  <div class="card project-block"><h3>采购与物料清单（单车）</h3><div class="table-wrap"><table><thead><tr><th>类别</th><th>数量与用途</th></tr></thead><tbody><tr><td>主控与下载</td><td>STM32F103C8T6 核心板 ×1，ST-Link ×1</td></tr><tr><td>运动</td><td>TT 马达 ×4、麦克纳姆轮 ×4（同一套）、金属底盘 ×1、DRV8833 模块 ×2</td></tr><tr><td>输入</td><td>PS2 无线手柄及接收器 ×1 套；确认接收器信号为 3.3V 逻辑可兼容</td></tr><tr><td>电源</td><td>18650 电池 ×2、双节电池盒 ×1、5V 降压模块 ×2；购买前核对容量与持续输出电流</td></tr><tr><td>连接</td><td>杜邦线、面包板/必要固定件；物资表已有</td></tr><tr><td>独立练习</td><td>SG90 或 MG995 舵机 ×1；可借用 LED 与限流电阻练习呼吸灯，不装在竞赛机器人上</td></tr></tbody></table></div><div class="callout danger"><b>供电条件：</b>官方清单截图没有给出 TT 马达、降压模块和 PS2 接收器的实物额定值。两节电池可能为串联或并联，必须看电池盒标注并测量；降压模块给四台马达的连续与启动电流必须足够。PS2 DAT 送入 F103 前确认电平不超过接收引脚允许值。无法确认时先停止通电，不靠猜测接线。</div></div>
+  <div class="card project-block"><h3>单车接线表</h3><div class="table-wrap"><table><thead><tr><th>主控/电源端</th><th>连接目标</th><th>说明</th></tr></thead><tbody id="project-wiring"></tbody></table></div><p class="small muted">PA9 的状态信号可在实验室用临时 USB-TTL 工具查看；常见 ST-Link V2 仿真器本身并不等于 USB 串口。若整车只能使用官方物资，保留 USART 输出接口，不把调试适配器安装在车上；现场可在 Keil/CubeIDE 调试窗口查看状态变量。</p></div>
+  <div class="card project-block"><h3>CubeMX 配置总表</h3><div class="table-wrap"><table><thead><tr><th>外设</th><th>设置</th><th>为什么</th></tr></thead><tbody><tr><td>RCC/SYS</td><td>核对核心板 HSE 晶振；若 fTIM 为 72 MHz，示例参数如下；SYS 设 Serial Wire</td><td>所有定时器参数都依赖真实时钟</td></tr><tr><td>TIM2、TIM3</td><td>各 CH1–CH4 PWM，PSC=0、ARR=3599、CCR 初始 0；无引脚重映射</td><td>fTIM=72 MHz 时得到 20 kHz；八路输入分别控制四台电机正反转</td></tr><tr><td>SPI2 方案</td><td>PB13 SCK、PB14 MISO、PB15 MOSI；Master、2 Lines、8bit、LSB first、CPOL High、CPHA 2Edge、NSS Software、低速起步</td><td>和常见 PS2 同步时序匹配；PB12 仍为 ATT GPIO</td></tr><tr><td>GPIO 模拟方案</td><td>PB13 CLK、PB15 CMD 输出，PB14 DAT 输入；PB12 ATT 输出；TIM1 1 MHz 计数</td><td>与硬件 SPI 二选一，便于逐位解释协议</td></tr><tr><td>USART1</td><td>PA9 TX、PA10 RX，115200 8N1；NVIC 开 USART1 IRQ</td><td>输出状态，并用接收中断识别 s/r 急停</td></tr><tr><td>FreeRTOS</td><td>2 个任务：控制 20 ms，状态 100 ms；检查 heap 和栈</td><td>控制周期清楚，F103C8 SRAM 使用可控</td></tr><tr><td>TIM4（可选练习）</td><td>PB6 CH1，PSC=71、ARR=19999（fTIM=72 MHz）</td><td>50 Hz 舵机脉冲与电机 20 kHz 分离</td></tr></tbody></table></div><p class="small muted">若板上不是 8 MHz HSE 或实际 fTIM 不为 72 MHz，必须重新计算 PSC/ARR，不能照抄。</p></div>
+  <div class="card project-block"><h3>工程结构与接入点</h3><pre>crtc_car/
+├─ crtc_car.ioc             ← CubeMX 配置文件（在 IDE 中生成）
+├─ Core/Inc/motor.h, mecanum.h, ps2.h, app_tasks.h
+├─ Core/Src/motor.c, mecanum.c, ps2.c, app_tasks.c
+├─ Core/Src/main.c         ← 只调用初始化与进入调度器
+├─ Core/Src/gpio.c, tim.c, spi.c, usart.c（CubeMX 生成）
+└─ Middlewares/FreeRTOS（CubeMX 生成）</pre><p>先用 CubeMX 生成 HAL 和 FreeRTOS 工程。把下列模块分别保存为对应的 .c 与 .h 文件，并加入 IDE 编译列表。<b>在 main.c 所有 MX_*_Init 完成后、启动调度器前</b>调用 <code>Motor_Init(); PS2_Init();</code>；在 <code>MX_FREERTOS_Init()</code> 的 USER CODE 区调用 <code>App_CreateTasks();</code>。如果 CubeMX 已建默认任务，应删去或改为相应任务，避免重复创建。</p></div>
+  <div class="card project-block"><h3>调试顺序</h3><ol class="project-steps"><li>确认板卡可下载，读出时钟树，先让板载 LED 工作。</li><li>只给 MCU 与 PS2 接收器供电；读 ID、0x5A、摇杆与按键。分别验证 GPIO 模拟和 SPI2，最终选一种烧录。</li><li>电机电源与主控共地。先只接 FL 一轮，限 20%–30% 占空比验证正转、反转与滑行。</li><li>依次接 FR、RL、RR；悬空标定四个正转方向并记录电机线极性。</li><li>串口打印 vx/vy/w 和四轮目标。分别手算并验证前进、后退、左移、右移、左右旋转。</li><li>拔掉手柄或接收器模拟失联，确认四轮立即停。最后落地低速运行，观察电源压降与驱动温升。</li></ol></div>
+  <div class="card project-block"><h3>常见错误</h3><ul><li>把 TT 马达直接接单片机，或把两节串联 18650 电压直接施加给额定电压较低的马达。</li><li>DRV8833 nSLEEP 未拉高；电源未共地；降压模块启动电流不够，导致一动电机就重启。</li><li>PS2 仍在数字模式（如 0x41），读不到模拟摇杆；CPOL/CPHA 或位序错误。</li><li>PS2 接收器用 5V 供电却把高电平 DAT 直接送到未经核对的 MCU 引脚。</li><li>麦轮滚子不是同一种 X 型安装、FL/FR/RL/RR 接错，或“正转”未逐轮标定。</li><li>FreeRTOS 任务栈不足、未开始调度、串口输出占用控制任务过久。</li></ul></div>`;
+  const $=s=>document.querySelector(s);
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const storageKey='crtc_stm32_singlefile_v1';
+  const initial={days:[],theory:[],lessons:[],tasks:[],wrong:[],history:[],currentExam:null};
+  let state={...initial};
+  let storageWorks=true;
+  try { const old=JSON.parse(localStorage.getItem(storageKey)||'{}'); state={...initial,...old}; }
+  catch(e) { storageWorks=false; }
+  function save(){try{localStorage.setItem(storageKey,JSON.stringify(state));storageWorks=true;}catch(e){storageWorks=false;}}
+  function checkStorage(){if(!storageWorks){let box=$('#storage-warning');if(!box){box=document.createElement('div');box.id='storage-warning';box.className='callout danger';$('main').prepend(box);}box.textContent='当前浏览器拒绝 localStorage，本次进度只能保留到关闭页面。请改用常规浏览器或静态网站地址打开。';}}
+  function go(id){if(!views.some(v=>v[0]===id))id='home';document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x.dataset.go===id));if(location.hash.slice(1)!==id)history.replaceState(null,'','#'+id);window.scrollTo(0,0);if(id==='progress')renderProgress();if(id==='exam')renderExam();}
+  function renderNav(){ $('#nav').innerHTML=views.map(([id,name])=>`<button type="button" data-go="${id}">${name}</button>`).join(''); }
+  function renderRoadmap(){let html='';for(let w=0;w<3;w++){html+=`<div class="week"><h3>第 ${w+1} 周 · ${['基础打通','核心控制','综合实战与作品'][w]}</h3><div class="days">`;for(let d=w*7;d<(w+1)*7;d++){const [day,level,title,done]=roadmap[d];html+=`<article class="day ${state.days.includes(d+1)?'done':''}"><div class="row"><span class="tag ${level==='核心'?'core':''}">${level==='核心'?'核心必学':'了解即可'}</span><span class="small muted">DAY ${day}</span></div><h4>${esc(title)}</h4><p>验收：${esc(done)}</p><label><input type="checkbox" data-day="${d+1}" ${state.days.includes(d+1)?'checked':''}>今日已完成</label></article>`;}html+='</div></div>';}$('#roadmap').innerHTML=html;updateHome();}
+  function updateHome(){let next=roadmap.findIndex((_,i)=>!state.days.includes(i+1));if(next<0)next=20;$('#today-num').textContent=`第 ${next+1} 天`;$('#today-text').textContent=roadmap[next][2];$('#home-progress').textContent=`路线完成 ${state.days.length} / 21 天`;$('#home-bar').style.width=(state.days.length/21*100)+'%';}
+  function renderTheory(){
+    const index=theoryBasics.map(x=>`<button type="button" data-jump="theory-${x.id}">${x.id} · ${esc(x.title)}</button>`).join('');
+    const units=theoryBasics.map(x=>`<article class="card theory-unit" id="theory-${x.id}"><div class="lesson-head"><div><span class="eyebrow">第 ${x.day} 天 · 纯理论</span><h3>${x.id} · ${esc(x.title)}</h3></div><label class="checkline small"><input type="checkbox" data-theory="${x.id}" ${state.theory.includes(x.id)?'checked':''}> 能口头解释</label></div>${x.html}${x.diagram?`<div class="diagram">${diagrams[x.diagram]}</div><p class="diagram-tip">图可左右滑动查看。</p>`:''}<p class="checkpoint"><b>不看文字回答：</b>${esc(x.check)}</p><a class="video-link" href="${x.video}" target="_blank" rel="noopener noreferrer">[视频] ${esc(videoNames[x.video])} ↗</a></article>`).join('');
+    const terms=theoryTerms.map(([name,meaning])=>`<div><b>${esc(name)}</b><span>${esc(meaning)}</span></div>`).join('');
+    $('#theory-list').innerHTML=`<div class="card theory-intro"><span class="eyebrow">零基础理论先修 · 第 1–2 天</span><h3>先弄清楚词和因果关系，再碰硬件</h3><p>本节只需要纸笔，不用 CubeMX，不用接线。按顺序读完 13 节，每节试着用自己的话回答最后的问题。你已有 C 语言基础，这里从“C 代码怎样控制真实引脚”开始。课程顺序参考电导不是韩导的中文速通功能篇，并补上 STM32F103 所需的电路与工具名词；正文是本站重新编写的讲解。</p><div class="theory-flow"><span>电源与电平</span>→<span>单片机与程序</span>→<span>时钟与 GPIO</span>→<span>PWM / 中断 / 通信</span>→<span>电机 / 任务 / 麦轮</span></div><p><a href="${videos.series}" target="_blank" rel="noopener noreferrer">[视频] 电导不是韩导 · 不翻页速通手册 ↗</a>　学到哪一项，再看对应章节；视频中的板卡或代码不必照搬到 F103。</p><nav class="lesson-index" aria-label="理论先修目录">${index}</nav></div>${units}<div class="card"><h3>基础名词速查</h3><p class="muted">遇到陌生词先看一句话定义，再回到上面的对应章节理解“为什么”。</p><div class="term-grid">${terms}</div></div>`;
+  }
+  function renderLessons(){
+    $('#lesson-list').innerHTML=lessons.map(l=>{
+      const chapters=deepLessons.filter(c=>c.module===l.id);
+      const index=chapters.map(c=>`<button type="button" data-jump="${c.module}-${c.title.slice(0,2)}">${esc(c.title)}</button>`).join('');
+      const pages=chapters.map(c=>`<section class="chapter" id="${c.module}-${c.title.slice(0,2)}"><h4>${esc(c.title)}</h4>${c.html}<a class="video-link" href="${c.video}" target="_blank" rel="noopener noreferrer">[视频] ${esc(videoNames[c.video])} ↗</a></section>`).join('');
+      return `<article class="card lesson"><div class="lesson-head"><div><span class="eyebrow">${esc(l.subtitle)}</span><h3>${esc(l.title)}</h3></div><label class="checkline small"><input type="checkbox" data-lesson="${l.id}" ${state.lessons.includes(l.id)?'checked':''}> 已学懂</label></div><div class="diagram">${diagrams[l.diagram]}</div><p class="diagram-tip">图可左右滑动查看。</p><div class="links">${l.docs.map(([label,url])=>`<a href="${url}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`).join('')}</div><nav class="lesson-index" aria-label="${esc(l.title)} 的小课目录">${index}</nav>${pages}<div class="callout"><b>板块验收：</b>${esc(l.check)}</div>${l.id==='wheel'?`<div class="card" style="box-shadow:none"><h4>四轮交互计算器</h4><div class="sim"><label>前进 vx <output id="vx-val">0</output><input id="vx" type="range" min="-100" max="100" value="0"></label><label>左移 vy <output id="vy-val">0</output><input id="vy" type="range" min="-100" max="100" value="0"></label><label>逆时针 w <output id="w-val">0</output><input id="w" type="range" min="-100" max="100" value="0"></label></div><div class="sim-out" id="sim-out"></div></div>`:''}</article>`;
+    }).join('');
+    updateSim();
+  }
+  function updateSim(){if(!$('#vx'))return;const v=['vx','vy','w'].map(id=>Number($('#'+id).value)/100);['vx','vy','w'].forEach((id,i)=>$('#'+id+'-val').textContent=v[i].toFixed(2));let [x,y,w]=v;let out=[x-y-w,x+y+w,x+y-w,x-y+w];let m=Math.max(1,...out.map(Math.abs));$('#sim-out').textContent=['FL','FR','RL','RR'].map((n,i)=>`${n}: ${(out[i]/m).toFixed(2)} ${out[i]>0?'↗ 正转':out[i]<0?'↙ 反转':'· 停止'}`).join('   ');}
+  function filterTasks(group='全部'){document.querySelectorAll('.filter').forEach(x=>x.classList.toggle('active',x.dataset.filter===group));document.querySelectorAll('.task').forEach(x=>{x.style.display=(group==='全部'||x.dataset.group===group)?'block':'none';});}
+  function renderTasks(){const groups=['全部','GPIO/PWM','电机/RTOS','SPI/PS2','麦轮解算'];$('#task-filters').innerHTML=groups.map(g=>`<button class="filter ${g==='全部'?'active':''}" type="button" data-filter="${g}">${g}</button>`).join('');$('#task-list').innerHTML=tasks.map(t=>`<details class="card task" data-group="${t.group}"><summary>${String(t.id).padStart(2,'0')} · ${esc(t.name)}</summary><p class="task-meta muted">${esc(t.group)}｜${esc(t.desc)}</p><div class="task-grid"><div><h4>硬件清单</h4><p>${esc(t.hw)}</p></div><div><h4>CubeMX 配置</h4><p>${esc(t.cube)}</p></div><div class="wide"><h4>接线表</h4><div class="table-wrap"><table><thead><tr><th>端子</th><th>连接到</th></tr></thead><tbody>${t.wire.map(w=>`<tr><td>${esc(w[0])}</td><td>${esc(w[1])}</td></tr>`).join('')}</tbody></table></div></div><div class="wide"><h4>代码框架</h4><pre>${esc(t.code)}</pre></div><div><h4>预期现象</h4><p>${esc(t.expected)}</p></div><div><h4>评分标准（100 分）</h4><p>${esc(t.rubric)}</p></div><div><h4>调试步骤</h4><ol>${t.debug.map(v=>`<li>${esc(v)}</li>`).join('')}</ol></div><div><h4>常见错误</h4><ul>${t.errors.map(v=>`<li>${esc(v)}</li>`).join('')}</ul></div></div><label class="checkline small"><input type="checkbox" data-task="${t.id}" ${state.tasks.includes(t.id)?'checked':''}> 已通过本任务验收</label></details>`).join('');}
+  function renderProject(){const labels={motor:'motor.c：H 桥方向和占空比',motorHeader:'motor.h：电机接口',mecanum:'mecanum.c：四轮公式',mecanumHeader:'mecanum.h：底盘接口',ps2:'ps2.c：GPIO/SPI 双实现',ps2Header:'ps2.h：手柄数据结构',app:'app_tasks.c：FreeRTOS 周期任务',appHeader:'app_tasks.h：任务入口',integration:'main.c 与 freertos.c：接入位置'};let codeHtml=Object.entries(projectCodes).map(([key,code])=>`<details class="card project-block"><summary>${labels[key]}</summary><p class="code-caption">按标题保存至对应文件；依赖 CubeMX 生成的初始化代码。</p><pre>${esc(code)}</pre></details>`).join('');$('#project-content').innerHTML=projectHtml+`<div class="section-head"><h2>工程代码框架</h2><p>以下是应用层核心代码；main.c、HAL 初始化与 FreeRTOS 源码由 CubeMX 生成。</p></div>`+codeHtml;$('#project-wiring').innerHTML=projectWiring.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('');}
+  function renderResources(){ $('#resource-list').innerHTML=resources.map(([type,name,desc,url])=>`<div class="resource"><b>${esc(type)} ${url?`<a href="${url}" target="_blank" rel="noopener noreferrer">${esc(name)} ↗</a>`:esc(name)}</b><span>${esc(desc)}</span></div>`).join(''); }
+  function shuffle(list){const a=[...list];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+  function startExam(){const picks=[...shuffle(questions.filter(v=>v.type==='diagram')).slice(0,4),...shuffle(questions.filter(v=>v.type==='short')).slice(0,3),...shuffle(questions.filter(v=>v.type==='tf')).slice(0,3),...shuffle(questions.filter(v=>v.type==='choice')).slice(0,10)];state.currentExam={ids:shuffle(picks).map(v=>v.id),answers:{},ratings:{},i:0,submitted:false,saved:false};save();renderExam();}
+  function getExamQuestion(){const s=state.currentExam;return s?questions.find(v=>v.id===s.ids[s.i]):null;}
+  function scoreExam(s){let n=0;for(const id of s.ids){const item=questions.find(v=>v.id===id);if(item.type==='short'){if(s.ratings[id]===true)n++;}else if(Number(s.answers[id])===item.answer)n++;}return n;}
+  function finalizeExam(){const s=state.currentExam;if(!s||!s.submitted||s.saved)return;const shortIds=s.ids.filter(id=>questions.find(v=>v.id===id).type==='short');if(shortIds.every(id=>typeof s.ratings[id]==='boolean')){state.history.unshift({score:scoreExam(s),total:s.ids.length,date:new Date().toLocaleDateString('zh-CN')});state.history=state.history.slice(0,30);s.saved=true;save();}}
+  function renderExam(){
+    const box=$('#exam-box'),s=state.currentExam;
+    if(!s){box.innerHTML=`<div class="eyebrow">随机练习</div><h3>55 题题库，抽取 20 题</h3><p class="muted">每次固定包含 4 道图文、3 道判断和 3 道简答，另外随机抽 10 道选择。提交后客观题自动评分；简答题显示要点，请按实际理解自评。</p><p>当前错题：${state.wrong.length} 道</p><button class="btn" data-exam="start">开始考试</button>`;return;}
+    const item=getExamQuestion(),val=s.answers[item.id],graded=s.submitted;
+    let answerInput='';
+    if(item.type==='short') answerInput=`<textarea aria-label="简答题作答" data-answer-short="${item.id}" ${graded?'readonly':''} placeholder="先用自己的话写出原因、公式或排查步骤">${esc(val||'')}</textarea>`;
+    else answerInput=`<div class="choices">${item.options.map((opt,i)=>`<label class="choice"><input type="radio" name="exam-option" value="${i}" data-answer-choice="${item.id}" ${String(val)===String(i)?'checked':''} ${graded?'disabled':''}><span>${esc(opt)}</span></label>`).join('')}</div>`;
+    const isCorrect=item.type==='short'?s.ratings[item.id]===true:Number(val)===item.answer;
+    let feedback='';
+    if(graded){
+      const correct=item.type==='short'?item.answer:item.options[item.answer];
+      feedback=`<div class="answer ${isCorrect?'':'wrong'}"><b>${item.type==='short'?'参考要点':'正确答案'}：</b>${esc(correct)}<br><span class="small">解释：${esc(item.explain)}<br>依据：${esc(sourceByModule[item.module])}</span>${item.type==='short'?`<div class="row" style="margin-top:10px"><button class="btn ${s.ratings[item.id]===true?'':'secondary'}" data-grade="${item.id}:1">掌握要点</button><button class="btn ${s.ratings[item.id]===false?'':'secondary'}" data-grade="${item.id}:0">待复习</button></div>`:''}</div>`;
+    }
+    const pending=s.ids.filter(id=>questions.find(v=>v.id===id).type==='short' && typeof s.ratings[id]!=='boolean').length;
+    const status=graded?(s.saved?`最终 ${scoreExam(s)} / 20 分`:`已得 ${scoreExam(s)} / 20 分，待自评 ${pending} 题`):'';
+    box.innerHTML=`<div class="exam-progress">第 ${s.i+1} / 20 题 · ${esc(item.module)} · ${item.type==='diagram'?'图文题':item.type==='choice'?'选择题':item.type==='tf'?'判断题':'简答题'} · ${status}</div><div class="bar"><span style="width:${((s.i+1)/20*100).toFixed(1)}%"></span></div><div class="question">${esc(item.prompt)}</div>${item.diagram?`<div class="diagram">${diagrams[item.diagram]}</div>`:''}${answerInput}${feedback}<div class="row" style="margin-top:16px"><button class="btn secondary" data-exam="prev" ${s.i===0?'disabled':''}>上一题</button><button class="btn secondary" data-exam="next" ${s.i===19?'disabled':''}>下一题</button>${!graded?`<button class="btn" data-exam="submit">提交并查看解析</button>`:`<button class="btn ghost" data-exam="new">重新抽题</button>`}</div>`;
+  }
+  function submitExam(){const s=state.currentExam;if(!s)return;s.submitted=true;for(const id of s.ids){const item=questions.find(v=>v.id===id);if(item.type!=='short'){const correct=Number(s.answers[id])===item.answer;state.wrong=correct?state.wrong.filter(x=>x!==id):[...new Set([...state.wrong,id])];}}finalizeExam();save();renderExam();}
+  function gradeShort(id,value){const s=state.currentExam;if(!s||!s.submitted)return;s.ratings[id]=value;state.wrong=value?state.wrong.filter(x=>x!==id):[...new Set([...state.wrong,id])];finalizeExam();save();renderExam();}
+  function renderProgress(){const cards=[['已完成天数',`${state.days.length} / 21`],['理论先修',`${state.theory.length} / ${theoryBasics.length}`],['教程板块',`${state.lessons.length} / 4`],['实操任务',`${state.tasks.length} / 15`],['已完成测验',`${state.history.length} 次`]];$('#progress-stats').innerHTML=cards.map(([a,b])=>`<div class="card"><p>${a}</p><div class="stat">${b}</div></div>`).join('');const rows=state.wrong.map(id=>questions.find(x=>x.id===id)).filter(Boolean);$('#wrong-list').innerHTML=rows.length?rows.map(v=>`<div class="wrong-row"><b>#${v.id} ${esc(v.prompt)}</b><div class="small muted">${esc(v.module)} · ${esc(v.explain)}</div></div>`).join(''):'目前没有错题。完成一次测验后这里会自动更新。';}
+  document.addEventListener('click',e=>{const jump=e.target.closest('[data-jump]');if(jump){document.getElementById(jump.dataset.jump)?.scrollIntoView({behavior:'smooth',block:'start'});return;}const goBtn=e.target.closest('[data-go]');if(goBtn){go(goBtn.dataset.go);return;}const filter=e.target.closest('[data-filter]');if(filter){filterTasks(filter.dataset.filter);return;}const examBtn=e.target.closest('[data-exam]');if(examBtn){const s=state.currentExam;switch(examBtn.dataset.exam){case 'start':case 'new':startExam();break;case 'prev':if(s){s.i=Math.max(0,s.i-1);save();renderExam();}break;case 'next':if(s){s.i=Math.min(19,s.i+1);save();renderExam();}break;case 'submit':submitExam();break;}return;}const grade=e.target.closest('[data-grade]');if(grade){const [id,v]=grade.dataset.grade.split(':');gradeShort(Number(id),v==='1');}});
+  document.addEventListener('change',e=>{const t=e.target;if(t.matches('[data-day]')){const id=Number(t.dataset.day);state.days=t.checked?[...new Set([...state.days,id])]:state.days.filter(x=>x!==id);save();renderRoadmap();}else if(t.matches('[data-theory]')){const id=t.dataset.theory;state.theory=t.checked?[...new Set([...state.theory,id])]:state.theory.filter(x=>x!==id);save();}else if(t.matches('[data-lesson]')){const id=t.dataset.lesson;state.lessons=t.checked?[...new Set([...state.lessons,id])]:state.lessons.filter(x=>x!==id);save();}else if(t.matches('[data-task]')){const id=Number(t.dataset.task);state.tasks=t.checked?[...new Set([...state.tasks,id])]:state.tasks.filter(x=>x!==id);save();}else if(t.matches('[data-answer-choice]')){state.currentExam.answers[t.dataset.answerChoice]=Number(t.value);save();}});
+  document.addEventListener('input',e=>{const t=e.target;if(t.matches('[data-answer-short]')){state.currentExam.answers[t.dataset.answerShort]=t.value;save();}else if(t.matches('#vx,#vy,#w'))updateSim();});
+  window.addEventListener('hashchange',()=>go(location.hash.slice(1)));
+  renderNav();renderRoadmap();renderTheory();renderLessons();renderTasks();renderProject();renderResources();renderProgress();renderExam();go(location.hash.slice(1)||'home');checkStorage();
+  </script>
+</body>
+</html>
